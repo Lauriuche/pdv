@@ -82,8 +82,8 @@
                 color: #017851 !important; /* vermelho */
             }
             
-        .display-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px; contain: layout paint; }
-        .main-digit { font-size: clamp(11rem, 15vw, 28rem); font-weight: 700; line-height: 0.8; letter-spacing: -0.05em; transition: color 0.2s ease; word-break: break-all; text-align: center; max-width: 90vw; will-change: color, opacity; }
+        .display-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0px; contain: layout paint; }
+        .main-digit { font-size: clamp(2rem, 15vw, 18rem); font-weight: 700; line-height: 0.8; letter-spacing: -0.05em; transition: color 0.2s ease; word-break: break-all; text-align: center; max-width: 90vw; will-change: color, opacity; }
         
         @keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .waiting-pulse { animation: soft-pulse 2s infinite ease-in-out; opacity: 0.4; }
@@ -104,7 +104,19 @@
 
         .btn-save-capsule { background: var(--primary-color); color: var(--bg-color); font-weight: 800; padding: 16px 0; border-radius: 999px; width: 70%; max-width: 320px; text-transform: uppercase; margin: 40px auto 20px auto; display: block; text-align: center; cursor: pointer; }
 
-        .view-overlay { background: var(--bg-color); color: var(--text-color); z-index: 100; position: absolute; inset: 0; display: none; flex-direction: column; padding: 2.5rem 1.5rem; overflow-y: auto; }
+        .view-overlay {
+            position: fixed !important; /* fixa na tela toda */
+            inset: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center; /* centraliza vertical */
+            align-items: center;    /* centraliza horizontal */
+            padding: 2.5rem 1.5rem;
+            overflow-y: visible; /* evita scroll */
+        }
         .view-overlay.active { display: flex; }
 
         .view-transition { animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
