@@ -783,7 +783,7 @@
             if (viewSuccess.classList.contains('active')) {
                 window.resetTerminal();
             }
-        }, 3000); 
+        }, 10000); 
     };
 
     window.renderSales = () => {
@@ -820,7 +820,7 @@
         const qrBox = document.getElementById('wifi-qr-box');
         qrBox.innerHTML = "";
         const wifiString = `WIFI:T:WPA;S:${window.terminalConfig.wifiSSID};P:${window.terminalConfig.wifiPass};;`;
-        new QRCode(qrBox, { text: wifiString, width: 256, height: 256, colorDark: "#000000", colorLight: "#ffffff" });
+        new QRCode(qrBox, { text: wifiString, width: 400, height: 400, colorDark: "#000000", colorLight: "#ffffff" });
     };
 
     window.showSupport = () => {
@@ -828,7 +828,7 @@
         const qrBox = document.getElementById('whatsapp-qr');
         qrBox.innerHTML = "";
         const url = `https://wa.me/${window.terminalConfig.whatsapp}`;
-        new QRCode(qrBox, { text: url, width: 256, height: 256, colorDark: "#000000", colorLight: "#ffffff" });
+        new QRCode(qrBox, { text: url, width: 400, height: 400, colorDark: "#000000", colorLight: "#ffffff" });
     };
 
     window.showSalesHistory = () => {
