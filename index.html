@@ -23,11 +23,10 @@
             --primary-color: #10b981; 
             --bg-color: #18181b;
             --text-color: #ffffff;
-            --keypad-bg: #27272a;
+            --keypad-bg: #222222;
             --keypad-text: #ffffff;
             --btn-bg: #ffffff;
             --btn-text: #000000;
-            --check-color:#017851; 
         }
 
         html {
@@ -74,57 +73,65 @@
                 box-shadow: 0 0 100px rgba(255, 255, 255, 0.0);
             }
         }
-        #view-success > div > div.w-32.h-32 {
-                background-color: #017851 !important; /* novo fundo, ex: azul */
-                box-shadow: 0 0 10px #017851 !important; /* sombra com a mesma cor */
-            }    
-        #view-success h2 {
-                color: #017851 !important; /* vermelho */
-            }4
-            
-        .display-area {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;    /* centraliza horizontal */
-                justify-content: center; /* centraliza vertical */
-                padding: 2rem;
-                height: 100%;
-                contain: layout paint;
-            }
 
         .main-digit {
-                font-size: clamp(2rem, 10vw, 10rem);
-                font-weight: 700;
-                line-height: 1.1;
-                letter-spacing: normal;
-                text-align: center;
-                max-width: 90vw;
-                white-space: normal;
-                word-break: break-word;
-                overflow-wrap: break-word;
-                padding: 0 0.5rem;
-                margin-bottom: 4rem; /* aumenta o espaço abaixo do display */
-            }
-            
-            @media (max-width: 400px) {
-                .main-digit {
-                    font-size: 4rem;
-                    padding: 0 0.25rem;
-                }
-            }
+            font-size: clamp(6rem, 24vw, 12rem);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            text-align: center;
+            max-width: 90vw;
+            color: #ffffff !important;
+            will-change: opacity;
+        }
+
         @keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .waiting-pulse { animation: soft-pulse 2s infinite ease-in-out; opacity: 0.4; }
 
-        .instruction-text { font-size: 11px; font-weight: 700; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2.5rem; text-align: center; transition: all 0.3s; }
+        .keypad-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            margin-bottom: 16px; 
+        }
 
-        .keypad-section { padding: 16px; background: rgba(0,0,0,0.1); border-top: 1px solid rgba(255,255,255,0.05); contain: content; }
-        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-        .keypad-btn { background-color: var(--keypad-bg); color: var(--keypad-text); border-radius: 999px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 400; cursor: pointer; height: 74px; border: 1px solid rgba(255,255,255,0.05); touch-action: manipulation; }
+        .keypad-btn { 
+            background-color: var(--keypad-bg); 
+            color: var(--keypad-text); 
+            border-radius: 999px; 
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+            -webkit-tap-highlight-color: transparent; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.4rem; 
+            font-weight: 400; 
+            cursor: pointer; 
+            height: 60px; 
+            border: none; 
+            touch-action: manipulation; 
+        }
         .keypad-btn:active { filter: brightness(1.3); transform: scale(0.9); }
         .keypad-btn.special { color: var(--primary-color); font-weight: 800; }
 
-        .btn-enter-pdv { background-color: var(--btn-bg); color: var(--btn-text); font-weight: 900; border-radius: 24px; font-size: 1.1rem; text-transform: uppercase; width: 100%; height: 68px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: filter 0.2s, transform 0.1s; cursor: pointer; }
+        .btn-enter-pdv { 
+            background-color: var(--btn-bg); 
+            color: var(--btn-text); 
+            font-weight: 800; 
+            border-radius: 999px; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            width: 100%; 
+            height: 56px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            transition: filter 0.2s, transform 0.1s; 
+            cursor: pointer; 
+            border: none;
+        }
         .btn-enter-pdv:active { filter: brightness(0.9); transform: scale(0.97); }
 
         .config-bar { background: rgba(0,0,0,0.2); padding: 18px 24px; border-radius: 999px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
@@ -133,24 +140,35 @@
         .btn-save-capsule { background: var(--primary-color); color: var(--bg-color); font-weight: 800; padding: 16px 0; border-radius: 999px; width: 70%; max-width: 320px; text-transform: uppercase; margin: 40px auto 20px auto; display: block; text-align: center; cursor: pointer; }
 
         .view-overlay {
-            position: fixed !important; /* fixa na tela toda */
+            position: fixed !important; 
             inset: 0;
             background: var(--bg-color);
             color: var(--text-color);
             z-index: 1000;
             display: none;
             flex-direction: column;
-            justify-content: center; /* centraliza vertical */
-            align-items: center;    /* centraliza horizontal */
-            padding: 2.5rem 1.5rem;
-            overflow-y: visible; /* evita scroll */
+            justify-content: center; 
+            align-items: center;    
+            padding: 0; 
+            overflow: hidden;
         }
         .view-overlay.active { display: flex; }
 
         .view-transition { animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.97) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        .qr-giant-frame { background: #ffffff; padding: 5%; border-radius: 2rem; width: 85vw; max-width: 400px; aspect-ratio: 1/1; margin: 0 auto 2.5rem auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 40px rgba(0,0,0,0.5); position: relative; }
+        .qr-giant-frame { 
+            background: #ffffff; 
+            padding: 1.25rem; 
+            border-radius: 1.5rem; 
+            width: 100%; 
+            max-width: 260px; 
+            aspect-ratio: 1/1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
         #pix-qr-box, #wifi-qr-box, #whatsapp-qr { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .qr-giant-frame canvas, .qr-giant-frame img { max-width: 100% !important; max-height: 100% !important; width: 100% !important; height: auto !important; object-fit: contain; border-radius: 0; image-rendering: pixelated; }
 
@@ -162,7 +180,7 @@
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
 
-        #message-box { position: absolute; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px); z-index: 200; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; pointer-events: none; }
+        #message-box { position: absolute; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px); z-index: 2000; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; pointer-events: none; }
         #message-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .custom-scroll::-webkit-scrollbar { width: 0px; }
@@ -177,30 +195,30 @@
         <span id="message-text" class="tracking-wide">Processando</span>
     </div>
 
-    <div class="px-8 pt-8 flex justify-between items-center z-10">
-        <div class="flex items-center gap-2 opacity-90">
-            <div id="status-dot" class="w-2 h-2 bg-red-600 rounded-full transition-colors duration-500 animate-pulse"></div>
-            <span id="terminal-name-label" class="text-[13px] font-bold tracking-[0.2em] uppercase">OFFLINE</span>
+    <!-- TELA INICIAL (TOP BAR) -->
+    <div class="px-6 pt-10 pb-4 flex justify-between items-center z-10 w-full absolute top-0 left-0">
+        <div class="flex items-center gap-2 opacity-100">
+            <div id="status-dot" class="w-[6px] h-[6px] bg-emerald-500 rounded-full transition-colors duration-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+            <span id="terminal-name-label" class="text-[10px] font-bold tracking-[0.1em] uppercase text-emerald-500">OFFLINE</span>
         </div>
-        <button onclick="window.toggleSettings()" class="text-[20px] font-medium opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2">
-            <span id="clock" class="tracking-widest">00:00:00</span>
-            <i data-lucide="settings" class="opacity-40 hover:text-primary hover:opacity-100 transition-all" size="18"></i>
+        <button onclick="window.toggleSettings()" class="text-[13px] font-medium opacity-80 hover:opacity-100 transition-opacity flex items-center gap-2 text-white">
+            <span id="clock" class="tracking-wider">00:00:00</span>
+            <i data-lucide="settings" class="opacity-50 hover:opacity-100 transition-all" size="14"></i>
         </button>
     </div>
 
     <!-- MAIN AREA -->
-    <div class="flex-1 relative flex flex-col min-h-0 overflow-hidden">
+    <div class="flex-1 relative flex flex-col min-h-0 overflow-hidden w-full pt-20">
         
-        <div id="view-main" class="flex-1 flex flex-col p-6 view-transition">
-            <div class="display-area" >
-                <span id="instruction-label" class="instruction-text cursor-pointer active:scale-95 py-2 px-6 rounded-full bg-white/5 hover:bg-white/10" onclick="window.pressKey('back')" title="Clique para apagar/voltar">DIGITE O VALOR</span>
-                <div class="flex items-baseline justify-center w-full relative">
-                    <span id="display-currency" class="text-3xl font-light opacity-40 absolute -left-16 top-1/2 -translate-y-1/2">R$</span>
-                    <span id="display-value" class="main-digit text-primary waiting-pulse cursor-pointer active:scale-95 transition-transform select-none" onclick="window.pressKey('back')" title="Clique para apagar/voltar">0,00</span>
-                </div>
+        <div id="view-main" class="flex-1 flex flex-col px-6 pb-6 view-transition">
+            <div class="flex-1 flex items-center justify-center w-full">
+                <!-- Mantendo labels ocultos para JS original não falhar -->
+                <span id="instruction-label" class="hidden">DIGITE O VALOR</span>
+                <span id="display-currency" class="hidden">R$</span>
+                <span id="display-value" class="main-digit text-white cursor-pointer active:scale-95 transition-transform select-none" onclick="window.pressKey('back')">0,00</span>
             </div>
 
-            <div id="keypad-ui">
+            <div id="keypad-ui" class="w-full max-w-[360px] mx-auto mt-auto">
                 <div class="keypad-grid">
                     <button class="keypad-btn" onclick="window.pressKey('1')">1</button>
                     <button class="keypad-btn" onclick="window.pressKey('2')">2</button>
@@ -219,41 +237,42 @@
                 </div>
                 <button class="btn-enter-pdv" onclick="window.handleAction()">
                     <span>GERAR PIX</span>
-                    <i data-lucide="arrow-right" stroke-width="2.5" size="28"></i>
+                    <i data-lucide="arrow-right" stroke-width="2.5" size="18"></i>
                 </button>
             </div>
         </div>
 
         <!-- ECRÃ PIX -->
         <div id="view-pix" class="view-overlay custom-scroll z-10">
-            <div class="min-h-full flex flex-col items-center justify-center text-center">
-                <div class="qr-giant-frame mb-4">
-                    <div id="pix-qr-box" class="mx-auto"></div>
+            <div class="flex flex-col items-center justify-center text-center w-full h-full py-8">
+                <div class="qr-giant-frame mb-6 mt-auto">
+                    <div id="pix-qr-box" class="mx-auto w-full h-full flex items-center justify-center"></div>
                 </div>
-                <p id="tx-id-display" class="text-zinc-500 font-mono text-[9px] mb-6 tracking-widest"></p>
-                <div class="mb-6">
-                    <p id="pix-status-text" class="text-primary text-[10px] uppercase tracking-[0.2em] mb-1 font-bold">A LIGAR AO BANCO...</p>
-                    <span class="text-4xl md:text-5xl font-bold tracking-tighter" id="pix-amount-label">R$ 0,00</span>
+                <p id="tx-id-display" class="hidden"></p>
+
+                <div class="mb-10 text-center flex flex-col items-center justify-center">
+                    <p id="pix-status-text" class="text-zinc-500 text-[9px] uppercase tracking-[0.15em] mb-2 font-bold">A LIGAR AO BANCO...</p>
+                    <span class="text-[40px] font-bold tracking-tight text-white leading-none" id="pix-amount-label">R$ 0,00</span>
                 </div>
 
-                <div class="w-full flex flex-col gap-3 px-6 pb-6 mt-auto">
-                    <button onclick="window.copyPix()" class="w-full py-5 bg-white/10 rounded-[30px] text-[12px] font-black uppercase active:scale-95 transition-transform border border-white/5">Copiar Código PIX</button>
-                    <button id="btn-test-payment" onclick="window.simulateTestPayment()" class="hidden w-full py-5 bg-yellow-500/20 text-yellow-500 rounded-[30px] text-[12px] font-black uppercase active:scale-95 transition-transform border border-yellow-500/50 mt-1">Simular (Teste)</button>
-                    <button onclick="window.resetTerminal()" class="w-full py-5 opacity-60 text-[11px] font-bold uppercase tracking-widest active:scale-95 transition-transform hover:opacity-100">Cancelar / Voltar</button>
+                <div class="w-full max-w-[320px] flex flex-col gap-3 px-4 pb-4 mt-auto mx-auto">
+                    <button onclick="window.copyPix()" class="w-full py-[18px] bg-[#2a2a2a] rounded-[24px] text-[10px] text-white font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-white/5">Copiar Código PIX</button>
+                    <button id="btn-test-payment" onclick="window.simulateTestPayment()" class="hidden w-full py-[18px] bg-[#3d3319] text-[#d4b036] rounded-[24px] text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-[#d4b036]/20">Simular (Teste)</button>
+                    <button onclick="window.resetTerminal()" class="w-full py-[18px] text-[#888] text-[9px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform hover:text-white mt-1">Cancelar / Voltar</button>
                 </div>
             </div>
         </div>
 
-        <!-- ECRÃ DE SUCESSO (TELA CHEIA) -->
-        <div id="view-success" class="view-overlay items-center justify-center text-center z-50">
-            <div class="flex flex-col items-center justify-center h-full w-full">
-                <div class="w-32 h-32 bg-primary rounded-full flex items-center justify-center mb-8 shadow-[0_0_60px_var(--primary-color)]">
-                    <i data-lucide="check" class="text-white" stroke-width="4" size="150"></i>
+        <!-- ECRÃ DE SUCESSO -->
+        <div id="view-success" class="view-overlay z-50">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6">
+                <div class="w-[88px] h-[88px] bg-[#017851] rounded-full flex items-center justify-center mb-6 mt-auto shadow-[0_0_40px_rgba(1,120,81,0.6)]">
+                    <i data-lucide="check" class="text-white" stroke-width="4" size="40"></i>
                 </div>
-                <h2 class="text-primary font-bold uppercase text-5xl mb-4 tracking-[0.2em]">PAGAMENTO CONFIRMADO!</h2>
-                <p class="font-bold opacity-70 text-sm tracking-widest uppercase mb-12">Obrigado pela preferencia!</p>
+                <h2 class="text-[#017851] font-black uppercase text-[28px] md:text-4xl leading-[1.1] mb-3 tracking-[0.1em] text-center max-w-[320px]">PAGAMENTO<br>CONFIRMADO!</h2>
+                <p class="font-bold opacity-70 text-[9px] tracking-[0.15em] text-white uppercase mb-auto">Obrigado pela preferência!</p>
                 
-                <button onclick="window.resetTerminal()" class="w-full max-w-[420px] py-6 bg-white/10 border border-white/5 rounded-[35px] flex items-center justify-center gap-4 font-bold text-[12px] active:scale-95 transition-transform mt-auto mb-10">
+                <button onclick="window.resetTerminal()" class="w-full max-w-[280px] py-[18px] bg-[#2a2a2a] rounded-[24px] text-white font-bold text-[10px] uppercase tracking-[0.1em] active:scale-95 transition-transform mt-auto mb-6 border border-white/5">
                     NOVA VENDA
                 </button>
             </div>
@@ -261,107 +280,123 @@
 
         <!-- ECRÃ WIFI -->
         <div id="view-wifi" class="view-overlay custom-scroll z-10">
-            <div class="min-h-full flex flex-col items-center justify-center p-6 text-center">
-                <h2 class="text-2xl font-bold mb-1 tracking-tight">Wi-Fi</h2>
-                <p class="text-[10px] mb-6 uppercase tracking-[0.2em] opacity-60">Conexão Automática</p>
-                <div class="qr-giant-frame mb-6"><div id="wifi-qr-box" class="mx-auto"></div></div>
-                <div class="w-full max-w-[280px] space-y-4 mb-8">
-                    <div><p class="text-[9px] uppercase tracking-widest mb-1 opacity-60">Rede</p><p id="wifi-ssid-val" class="text-base font-medium">--</p></div>
-                    <div><p class="text-[9px] uppercase tracking-widest mb-1 opacity-60">Senha</p><p id="wifi-pass-val" class="text-base font-mono">--</p></div>
+            <div class="flex flex-col items-center justify-center w-full h-full py-12 px-6">
+                <h2 class="text-[20px] font-bold mb-1 tracking-wide text-white mt-auto">Wi-Fi</h2>
+                <p class="text-[9px] mb-8 uppercase tracking-[0.15em] opacity-50 text-white">Conexão Automática</p>
+                
+                <div class="qr-giant-frame mb-10"><div id="wifi-qr-box" class="mx-auto w-full h-full flex items-center justify-center"></div></div>
+                
+                <div class="w-full space-y-6 mb-8 text-center flex flex-col items-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <p class="text-[8px] uppercase tracking-[0.2em] mb-1 opacity-50 text-white">Rede</p>
+                        <p id="wifi-ssid-val" class="text-[15px] font-semibold text-white">--</p>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <p class="text-[8px] uppercase tracking-[0.2em] mb-1 opacity-50 text-white">Senha</p>
+                        <p id="wifi-pass-val" class="text-[14px] font-mono tracking-wider opacity-90 text-white">--</p>
+                    </div>
                 </div>
-                <button onclick="window.resetTerminal()" class="px-8 py-4 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] active:scale-95 transition-all mt-auto mb-10">Voltar</button>
+                <button onclick="window.resetTerminal()" class="px-10 py-[14px] rounded-full bg-white text-black text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all mt-auto mb-6 border border-white">
+                    VOLTAR
+                </button>
             </div>
         </div>
 
         <!-- ECRÃ WHATSAPP -->
         <div id="view-support" class="view-overlay custom-scroll z-10">
-            <div class="min-h-full flex flex-col items-center justify-center p-6 text-center">
-                <h2 class="text-2xl font-bold mb-1 tracking-tight">Suporte</h2>
-                <p class="text-[10px] mb-6 uppercase tracking-[0.2em] opacity-60">Atendimento Direto</p>
-                <div class="qr-giant-frame mb-6 mx-auto"><div id="whatsapp-qr"></div></div>
-                <p class="text-[11px] text-center leading-relaxed max-w-[250px] mb-8 opacity-70 font-bold">Aponte a câmara para abrir o WhatsApp</p>
-                <button onclick="window.resetTerminal()" class="px-8 py-4 rounded-full bg-white text-black font-black uppercase text-[10px] active:scale-95 transition-all mt-auto mb-10">Voltar</button>
+            <div class="flex flex-col items-center justify-center w-full h-full py-12 px-6">
+                <h2 class="text-[20px] font-bold mb-1 tracking-wide text-white mt-auto">Suporte</h2>
+                <p class="text-[9px] mb-8 uppercase tracking-[0.15em] opacity-50 text-white">Atendimento Direto</p>
+                
+                <div class="qr-giant-frame mb-10 mx-auto"><div id="whatsapp-qr"></div></div>
+                
+                <p class="text-[11px] text-center leading-relaxed max-w-[250px] mb-8 opacity-70 font-bold text-white">
+                    Aponte a câmara para abrir o WhatsApp
+                </p>
+                <button onclick="window.resetTerminal()" class="px-10 py-[14px] rounded-full bg-white text-black text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all mt-auto mb-6 border border-white">
+                    VOLTAR
+                </button>
             </div>
         </div>
 
         <!-- ECRÃ HISTÓRICO DE VENDAS -->
         <div id="view-sales" class="view-overlay flex-col p-8 view-transition z-20">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-light tracking-tighter">Vendas</h2>
-                <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end">
+            <div class="flex justify-between items-center mb-8 w-full max-w-md mx-auto">
+                <h2 class="text-3xl font-light tracking-tighter text-white">Vendas</h2>
+                <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end text-white">
                     <i data-lucide="x" stroke-width="1.5"></i>
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto pr-2 custom-scroll space-y-3" id="sales-list"></div>
-            <div class="pt-6 mt-4 border-t border-white/10 flex justify-between items-end">
-                <p class="text-[10px] uppercase tracking-widest mb-1 opacity-60">Total Recebido</p>
+            <div class="flex-1 overflow-y-auto w-full max-w-md mx-auto pr-2 custom-scroll space-y-3" id="sales-list"></div>
+            <div class="w-full max-w-md mx-auto pt-6 mt-4 border-t border-white/10 flex justify-between items-end">
+                <p class="text-[10px] uppercase tracking-widest mb-1 opacity-60 text-white">Total Recebido</p>
                 <p id="sales-total" class="text-2xl font-bold text-primary">R$ 0,00</p>
             </div>
         </div>
 
         <!-- ECRÃ CONFIGURAÇÕES -->
-        <div id="view-settings" class="view-overlay flex-col p-8 view-transition z-20">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-light tracking-tighter">Ajustes</h2>
-                <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end">
+        <div id="view-settings" class="view-overlay flex-col p-6 view-transition z-20">
+            <div class="flex justify-between items-center mb-8 w-full max-w-md mx-auto">
+                <h2 class="text-3xl font-light tracking-tighter text-white">Ajustes</h2>
+                <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end text-white">
                     <i data-lucide="x" stroke-width="1.5"></i>
                 </button>
             </div>
 
-            <div class="space-y-4 flex-1 overflow-y-auto pr-2 custom-scroll pb-10">
-                <div class="config-bar" onclick="window.toggleAcc('acc-sys')">
+            <div class="space-y-4 flex-1 overflow-y-auto w-full max-w-md mx-auto pr-2 custom-scroll pb-10">
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-sys')">
                     <span>Identificação & Sistema</span>
                     <i data-lucide="chevron-down" size="22"></i>
                 </div>
                 <div id="acc-sys" class="hidden px-2 pb-8 space-y-6 text-left">
                     <div>
-                        <label class="text-[10px] uppercase font-black ml-1 opacity-60">Nome do Terminal</label>
+                        <label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Nome do Terminal</label>
                         <input type="text" id="input-terminal-name" class="minimal-input mt-1" placeholder="Ex: CAIXA PRINCIPAL">
                     </div>
-                    <div class="flex items-center justify-between bg-black/20 p-4 rounded-xl border border-white/5">
-                        <label class="text-[11px] uppercase font-black">Teclado Virtual Ativo</label>
+                    <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5">
+                        <label class="text-[11px] uppercase font-black text-white">Teclado Virtual Ativo</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="input-use-virtual-kb" class="sr-only peer" checked>
                             <div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-black ml-1 opacity-60">WhatsApp Suporte</label>
+                        <label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">WhatsApp Suporte</label>
                         <input type="text" id="input-whatsapp" class="minimal-input mt-1" placeholder="Ex: 5511999999999">
                     </div>
                 </div>
 
-                <div class="config-bar" onclick="window.toggleAcc('acc-mp')">
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-mp')">
                     <span>Cobrança API & PIX</span>
                     <i data-lucide="chevron-down" size="22"></i>
                 </div>
                 <div id="acc-mp" class="hidden px-2 pb-8 space-y-6 text-left">
                     <div>
-                        <label class="text-[10px] uppercase font-black ml-1 opacity-60">Chave PIX (Plano B / Reserva)</label>
+                        <label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Chave PIX (Plano B / Reserva)</label>
                         <input type="text" id="input-pix-key" class="minimal-input mt-1" placeholder="CPF, Celular ou Email">
                     </div>
                     <div>
-                        <label class="text-[10px] uppercase font-black ml-1 opacity-60">Access Token (API Mercado Pago)</label>
+                        <label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Access Token (API Mercado Pago)</label>
                         <input type="password" id="input-api-key" class="minimal-input mt-1" placeholder="APP_USR-...">
                     </div>
                 </div>
 
-                <div class="config-bar" onclick="window.toggleAcc('acc-wifi')">
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-wifi')">
                     <span>Configuração Wi-Fi</span>
                     <i data-lucide="chevron-down" size="22"></i>
                 </div>
                 <div id="acc-wifi" class="hidden px-2 pb-8 space-y-6 text-left">
-                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Nome da Rede (SSID)</label><input type="text" id="input-wifi-ssid" class="minimal-input mt-1" placeholder="SSID da Rede"></div>
-                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Senha da Rede</label><input type="password" id="input-wifi-pass" class="minimal-input mt-1" placeholder="Senha da Rede"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Nome da Rede (SSID)</label><input type="text" id="input-wifi-ssid" class="minimal-input mt-1" placeholder="SSID da Rede"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Senha da Rede</label><input type="password" id="input-wifi-pass" class="minimal-input mt-1" placeholder="Senha da Rede"></div>
                 </div>
 
-                <div class="config-bar" onclick="window.toggleAcc('acc-visual')">
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-visual')">
                     <span>Personalização Visual</span>
                     <i data-lucide="chevron-down" size="22"></i>
                 </div>
                 <div id="acc-visual" class="hidden px-2 pb-8 space-y-6 text-left">
-                    <div class="bg-black/20 p-4 rounded-xl border border-white/5 mx-2">
-                        <label class="text-[10px] uppercase font-black opacity-60 block mb-2">Temas Premium</label>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 mx-2">
+                        <label class="text-[10px] uppercase font-black opacity-60 block mb-2 text-white">Temas Premium</label>
                         <select id="input-preset-theme" class="minimal-input" onchange="window.applyPresetTheme()">
                             <option value="custom">Personalizado (Misto)</option>
                             <option value="carbon">Carbono</option>
@@ -375,18 +410,18 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Fundo App</label><input type="color" id="cfg-bg-color" oninput="window.previewTheme()"></div>
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Texto App</label><input type="color" id="cfg-text-color" oninput="window.previewTheme()"></div>
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Fundo Teclas</label><input type="color" id="cfg-keypad-bg" oninput="window.previewTheme()"></div>
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Texto Teclas</label><input type="color" id="cfg-keypad-text" oninput="window.previewTheme()"></div>
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Fundo Botão</label><input type="color" id="cfg-btn-bg" oninput="window.previewTheme()"></div>
-                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60">Texto Botão</label><input type="color" id="cfg-btn-text" oninput="window.previewTheme()"></div>
-                        <div class="col-span-2"><label class="text-[10px] uppercase font-black ml-1 opacity-60">Destaque Principal</label><input type="color" id="cfg-primary-color" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo App</label><input type="color" id="cfg-bg-color" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto App</label><input type="color" id="cfg-text-color" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo Teclas</label><input type="color" id="cfg-keypad-bg" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto Teclas</label><input type="color" id="cfg-keypad-text" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo Botão</label><input type="color" id="cfg-btn-bg" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto Botão</label><input type="color" id="cfg-btn-text" oninput="window.previewTheme()"></div>
+                        <div class="col-span-2"><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Destaque Principal</label><input type="color" id="cfg-primary-color" oninput="window.previewTheme()"></div>
                     </div>
                 </div>
             </div>
 
-            <button onclick="window.saveSettings()" id="btn-save" class="mt-4 w-full py-5 rounded-full btn-enter text-[10px] uppercase tracking-[0.2em] transition-all">
+            <button onclick="window.saveSettings()" id="btn-save" class="mt-4 w-full max-w-md mx-auto py-5 rounded-full bg-white text-black font-bold uppercase tracking-[0.2em] text-[10px] active:scale-[0.98] transition-all">
                 Salvar Definições
             </button>
         </div>
@@ -398,7 +433,6 @@
     import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
-    // Variáveis Globais Rigorosas para evitar problemas de escopo "is not a function"
     window.currentDigits = "";
     window.salesData = [];
     window.pendingSaleAmount = 0; 
@@ -413,7 +447,7 @@
 
     window.terminalConfig = { 
         terminalName: "CAIXA", mpApiKey: "", pixKey: "", wifiSSID: "", wifiPass: "", whatsapp: "351999999999", useVirtualKb: true,
-        bgColor: "#18181b", textColor: "#ffffff", primaryColor: "#10b981", keypadBg: "#27272a", keypadText: "#ffffff", btnBg: "#ffffff", btnText: "#000000"
+        bgColor: "#18181b", textColor: "#ffffff", primaryColor: "#10b981", keypadBg: "#222222", keypadText: "#ffffff", btnBg: "#ffffff", btnText: "#000000"
     };
 
     window.generateSafeId = () => {
@@ -439,7 +473,7 @@
     }
 
     const themePresets = {
-        'carbon': { bg: '#18181b', text: '#ffffff', primary: '#10b981', keyBg: '#27272a', keyText: '#ffffff', btnBg: '#ffffff', btnText: '#000000' },
+        'carbon': { bg: '#18181b', text: '#ffffff', primary: '#10b981', keyBg: '#222222', keyText: '#ffffff', btnBg: '#ffffff', btnText: '#000000' },
         'oled': { bg: '#000000', text: '#ffffff', primary: '#10b981', keyBg: '#111111', keyText: '#ffffff', btnBg: '#10b981', btnText: '#000000' },
         'ocean': { bg: '#0f172a', text: '#f8fafc', primary: '#3b82f6', keyBg: '#1e293b', keyText: '#f8fafc', btnBg: '#3b82f6', btnText: '#ffffff' },
         'terracotta': { bg: '#3E2723', text: '#FFDAB9', primary: '#CD5C5C', keyBg: '#4E342E', keyText: '#FFDAB9', btnBg: '#CD5C5C', btnText: '#ffffff' },
@@ -448,7 +482,6 @@
         'emerald': { bg: '#0b1d1a', text: '#F5FFFA', primary: '#20B2AA', keyBg: '#14332e', keyText: '#F5FFFA', btnBg: '#20B2AA', btnText: '#0b1d1a' }
     };
 
-    // FUNÇÃO GLOBAL DE RESET GARANTIDA
     window.resetTerminal = () => {
         if (window.unsubscribePayment) { window.unsubscribePayment(); window.unsubscribePayment = null; }
         if (window.mpPollInterval) { clearInterval(window.mpPollInterval); window.mpPollInterval = null; }
@@ -510,14 +543,12 @@
         if (!dot || !label) return;
 
         if (navigator.onLine && !forceOffline) {
-            dot.className = "w-2 h-2 bg-emerald-500 rounded-full";
-            label.classList.remove('text-red-500', 'text-zinc-500');
-            label.classList.add('text-emerald-500');
+            dot.className = "w-[6px] h-[6px] bg-[#017851] rounded-full transition-colors duration-500 shadow-[0_0_8px_rgba(1,120,81,0.5)]";
+            label.className = "text-[10px] font-bold tracking-[0.1em] uppercase text-[#017851]";
             label.textContent = window.terminalConfig.terminalName || "ONLINE";
         } else {
-            dot.className = "w-2 h-2 bg-red-500 rounded-full animate-pulse";
-            label.classList.remove('text-emerald-500', 'text-zinc-500');
-            label.classList.add('text-red-500');
+            dot.className = "w-[6px] h-[6px] bg-red-500 rounded-full animate-pulse";
+            label.className = "text-[10px] font-bold tracking-[0.1em] uppercase text-red-500";
             label.textContent = "SEM INTERNET";
         }
     };
@@ -571,26 +602,16 @@
     };
 
     window.updateDisplay = () => {
-        const label = document.getElementById('instruction-label');
         const displayVal = document.getElementById('display-value');
         if (!displayVal) return;
 
         if (!window.currentDigits) {
             displayVal.classList.add('waiting-pulse');
             displayVal.textContent = "0,00";
-            displayVal.style.color = ''; 
-            label.textContent = "DIGITE O VALOR"; label.style.color = "";
         } else {
             displayVal.classList.remove('waiting-pulse');
             const v = parseInt(window.currentDigits);
             displayVal.textContent = (v / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-            displayVal.style.color = 'var(--primary-color)';
-            
-            if(window.currentDigits.length >= 1 && window.currentDigits.endsWith('1') && v < 100) { label.textContent = "ABRIR WI-FI"; label.style.color = "var(--primary-color)"; }
-            else if(window.currentDigits.length >= 1 && window.currentDigits.endsWith('2') && v < 100) { label.textContent = "ABRIR SUPORTE"; label.style.color = "var(--primary-color)"; }
-            else if(window.currentDigits.length >= 1 && window.currentDigits.endsWith('3') && v < 100) { label.textContent = "DEFINIÇÕES"; label.style.color = "var(--primary-color)"; }
-            else if(window.currentDigits.length >= 1 && window.currentDigits.endsWith('4') && v < 100) { label.textContent = "VER VENDAS"; label.style.color = "var(--primary-color)"; }
-            else { label.textContent = "GERAR COBRANÇA"; label.style.color = ""; }
         }
     };
 
@@ -609,7 +630,6 @@
         statusText.className = "text-primary text-[10px] uppercase tracking-[0.2em] mb-1 font-bold";
 
         const token = window.terminalConfig.mpApiKey;
-        const chavePix = window.terminalConfig.pixKey;
 
         if (token && token.trim() !== "") {
             try {
@@ -686,7 +706,7 @@
         new QRCode(qrBox, { text: finalPayload, width: 256, height: 256, colorDark: "#000000", colorLight: "#ffffff" });
 
         statusText.textContent = "PIX NATIVO (PLANO B)";
-        statusText.className = "text-zinc-500 text-[10px] uppercase tracking-[0.2em] mb-1 font-bold";
+        statusText.className = "text-[#888] text-[9px] uppercase tracking-[0.15em] mb-1 font-bold";
         window.checkTestButton();
 
         if (window.db && window.auth && window.auth.currentUser) {
@@ -755,16 +775,15 @@
         const viewSuccess = document.getElementById('view-success');
         viewSuccess.classList.add('active');
 
-        // Atualizar ícones SVG injetados dinamicamente
         lucide.createIcons();
 
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: [getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(), '#ffffff'] });
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#017851', '#ffffff'] });
 
         setTimeout(() => {
             if (viewSuccess.classList.contains('active')) {
                 window.resetTerminal();
             }
-        }, 8000); 
+        }, 3000); 
     };
 
     window.renderSales = () => {
@@ -787,7 +806,7 @@
                             <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-1">${dateStr} ${sale.transactionId ? `(ID: ${sale.transactionId.substring(sale.transactionId.length-6)})` : ''}</p>
                             <p class="text-xs font-bold text-primary">${sale.method} <span class="text-zinc-600 ml-1 font-normal">• ${sale.status}</span></p>
                         </div>
-                        <span class="font-bold">${sale.amount.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
+                        <span class="font-bold text-white">${sale.amount.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
                     </div>`;
             });
         }
@@ -845,7 +864,7 @@
             document.getElementById('cfg-bg-color').value = window.terminalConfig.bgColor || "#18181b";
             document.getElementById('cfg-text-color').value = window.terminalConfig.textColor || "#ffffff";
             document.getElementById('cfg-primary-color').value = window.terminalConfig.primaryColor || "#10b981";
-            document.getElementById('cfg-keypad-bg').value = window.terminalConfig.keypadBg || "#27272a";
+            document.getElementById('cfg-keypad-bg').value = window.terminalConfig.keypadBg || "#222222";
             document.getElementById('cfg-keypad-text').value = window.terminalConfig.keypadText || "#ffffff";
             document.getElementById('cfg-btn-bg').value = window.terminalConfig.btnBg || "#ffffff";
             document.getElementById('cfg-btn-text').value = window.terminalConfig.btnText || "#000000";
@@ -886,7 +905,7 @@
         document.documentElement.style.setProperty('--bg-color', window.terminalConfig.bgColor || '#18181b');
         document.documentElement.style.setProperty('--text-color', window.terminalConfig.textColor || '#ffffff');
         document.documentElement.style.setProperty('--primary-color', window.terminalConfig.primaryColor || '#10b981');
-        document.documentElement.style.setProperty('--keypad-bg', window.terminalConfig.keypadBg || '#27272a');
+        document.documentElement.style.setProperty('--keypad-bg', window.terminalConfig.keypadBg || '#222222');
         document.documentElement.style.setProperty('--keypad-text', window.terminalConfig.keypadText || '#ffffff');
         document.documentElement.style.setProperty('--btn-bg', window.terminalConfig.btnBg || '#ffffff');
         document.documentElement.style.setProperty('--btn-text', window.terminalConfig.btnText || '#000000');
