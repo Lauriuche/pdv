@@ -80,11 +80,39 @@
             }    
         #view-success h2 {
                 color: #017851 !important; /* vermelho */
+            }4
+            
+        .display-area {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;    /* centraliza horizontal */
+                justify-content: center; /* centraliza vertical */
+                padding: 2rem;
+                height: 100%;
+                contain: layout paint;
+            }
+
+        .main-digit {
+                font-size: clamp(2rem, 10vw, 10rem);
+                font-weight: 700;
+                line-height: 1.1;
+                letter-spacing: normal;
+                text-align: center;
+                max-width: 90vw;
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                padding: 0 0.5rem;
+                margin-bottom: 4rem; /* aumenta o espaço abaixo do display */
             }
             
-        .display-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0px; contain: layout paint; }
-        .main-digit { font-size: clamp(2rem, 15vw, 18rem); font-weight: 700; line-height: 0.8; letter-spacing: -0.05em; transition: color 0.2s ease; word-break: break-all; text-align: center; max-width: 90vw; will-change: color, opacity; }
-        
+            @media (max-width: 400px) {
+                .main-digit {
+                    font-size: 4rem;
+                    padding: 0 0.25rem;
+                }
+            }
         @keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .waiting-pulse { animation: soft-pulse 2s infinite ease-in-out; opacity: 0.4; }
 
@@ -164,7 +192,7 @@
     <div class="flex-1 relative flex flex-col min-h-0 overflow-hidden">
         
         <div id="view-main" class="flex-1 flex flex-col p-6 view-transition">
-            <div class="display-area">
+            <div class="display-area" >
                 <span id="instruction-label" class="instruction-text cursor-pointer active:scale-95 py-2 px-6 rounded-full bg-white/5 hover:bg-white/10" onclick="window.pressKey('back')" title="Clique para apagar/voltar">DIGITE O VALOR</span>
                 <div class="flex items-baseline justify-center w-full relative">
                     <span id="display-currency" class="text-3xl font-light opacity-40 absolute -left-16 top-1/2 -translate-y-1/2">R$</span>
