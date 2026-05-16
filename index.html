@@ -578,18 +578,36 @@
     window.addEventListener('offline', () => window.updateNetworkUI());
 
     window.startInactivityTimer = () => {
-        const delay = parseInt(window.terminalConfig.screensaverDelay) || 30;
-        window.inactivityTimerLeft = delay;
-        if (window.inactivityInterval) clearInterval(window.inactivityInterval);
-        window.inactivityInterval = setInterval(() => {
-            window.inactivityTimerLeft--;
-            if (window.inactivityTimerLeft <= 0) {
-                window.resetTerminal();
-                window.showScreensaver && window.showScreensaver();
-                window.inactivityTimerLeft = parseInt(window.terminalConfig.screensaverDelay) || 30;
-            }
-        }, 1000);
-    };
+    const delay = parseInt(window.terminalConfig.screensaverDelay) || 30;
+    window.inactivityTimerLeft = delay;
+    if (window.inactivityInterval) clearInterval(window.inactivityInterval);
+    
+    window.inactivityInterval = setInterval(() => {
+        window.inactivityTimerLeft--;
+
+        // Verifica se alguma view sobreposta está ativa
+        const viewsToCheck = [
+            'view-pix',
+            'view-wifi',
+            'view-support',
+            'view-settings',
+            'view-sales',
+            'view-success'
+        ];
+
+        const anyOverlayActive = viewsToCheck.some(id => {
+            const el = document.getElementById(id);
+            return el && el.classList.contains('active');
+        });
+
+        if (window.inactivityTimerLeft <= 0 && !anyOverlayActive) {
+            window.resetTerminal();
+            window.showScreensaver();
+            window.inactivityTimerLeft = delay;
+        }
+    }, 1000);
+};
+
 
     // ===== SCREENSAVER =====
     const ss = document.getElementById('screensaver');
@@ -815,7 +833,7 @@
             push(salesRef, { amount: amount, timestamp: new Date().toISOString(), method: 'PIX', status: 'Aprovado', transactionId: txId }).catch(()=>{});
         }
 
-        try { const somCaixa = new Audio('./generic-ka-ching.mp3); somCaixa.play().catch(()=>{}); } catch (e) {}
+        try { const somCaixa = new Audio('https://freesound.org/s/47962/'); somCaixa.play().catch(()=>{}); } catch (e) {}
 
         document.getElementById('view-pix').classList.remove('active');
 
