@@ -184,6 +184,11 @@
         #message-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .custom-scroll::-webkit-scrollbar { width: 0px; }
+        body, .terminal-container {
+    padding-top: constant(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top);
+}
+
     </style>
 </head>
 <body class="md:p-6">
@@ -194,7 +199,7 @@
         <div id="ss-date">—</div>
         <div id="ss-weekday" style="opacity:0.95;">—</div>
     </div>
-    <div id="ss-time" style="font-family:'Cormorant Garamond','Times New Roman',serif;font-weight:500;font-size:clamp(7rem,28vw,15rem);line-height:1;margin-top:18vh;letter-spacing:-0.02em;">--:--</div>
+    <div id="ss-time" style="font-family:'Cormorant Garamond','Times New Roman',serif;font-weight:500;font-size:clamp(15rem,28vw,20rem);line-height:1;margin-top:18vh;letter-spacing:-0.02em;">--:--</div>
 </div>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap">
 
