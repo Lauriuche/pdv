@@ -815,7 +815,7 @@
             push(salesRef, { amount: amount, timestamp: new Date().toISOString(), method: 'PIX', status: 'Aprovado', transactionId: txId }).catch(()=>{});
         }
 
-        try { const somCaixa = new Audio('https://www.myinstants.com/media/sounds/cash-register-kaching-sound-effect-audio-library.mp3'); somCaixa.play().catch(()=>{}); } catch (e) {}
+        try { const somCaixa = new Audio('./generic-ka-ching.mp3); somCaixa.play().catch(()=>{}); } catch (e) {}
 
         document.getElementById('view-pix').classList.remove('active');
 
