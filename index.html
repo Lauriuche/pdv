@@ -1,0 +1,1357 @@
+<html lang="pt-PT" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#232935">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwMDAiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjEyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMyIi8+PC9zdmc+">
+    <title>Terminal PDV • Premium V7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--primary-color)'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:wght@400;500&display=swap');
+
+        :root { 
+            --primary-color: #22c55e; 
+            --bg-color: #232935;
+            --text-color: #ffffff;
+            --keypad-bg: #2d3545;
+            --keypad-text: #ffffff;
+            --btn-bg: #7c9cbd;
+            --btn-text: #1e293b;
+            color-scheme: dark;
+        }
+
+        html { background-color: var(--bg-color); margin: 0; padding: 0; width: 100%; height: 100%; transition: background-color 0.3s; }
+        body { 
+            background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-color); 
+            font-family: 'Inter', sans-serif; height: 100dvh; width: 100%; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none;
+            transition: background-color 0.3s, color 0.3s; position: relative;
+        }
+
+        .terminal-container { width: 100%; height: 100%; display: flex; flex-direction: column; position: center; z-index: 10; }
+        @media (max-width: 767px) { .terminal-container { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); } }
+        @media (min-width: 768px) { .terminal-container { max-width: 720px; height: 85vh; max-height: 720px; border-radius: 40px; backdrop-filter: blur(20px); overflow: hidden; } }
+
+        .main-digit { font-size: clamp(8rem, 32vw, 24rem); font-weight: 700; line-height: 1; letter-spacing: -0.03em; text-align: center; max-width: 90vw; color: var(--text-color, #ffffff) !important; will-change: opacity, transform; }
+        @keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .waiting-pulse { animation: soft-pulse 2s infinite ease-in-out; opacity: 0.4; }
+
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+        .keypad-btn { background-color: var(--keypad-bg); color: var(--keypad-text); border-radius: 20px; transition: all 0.1s; display: flex; align-items: center; justify-content: center; font-size: 1.45rem; font-weight: 500; cursor: pointer; height: 54px; border: none; touch-action: manipulation; }
+        .keypad-btn:active { filter: brightness(1.3); transform: scale(0.92); }
+        .keypad-btn.special { color: var(--primary-color); font-weight: 800; }
+        .btn-enter-pdv { background-color: var(--btn-bg); color: var(--btn-text); font-weight: 800; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: filter 0.2s, transform 0.1s; cursor: pointer; border: none; }
+        .btn-enter-pdv:active { filter: brightness(0.9); transform: scale(0.97); }
+
+        .config-bar { background: rgba(0,0,0,0.2); padding: 18px 24px; border-radius: 999px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
+        .config-bar span { font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; }
+
+        .view-overlay { position: fixed !important; inset: 0; background: var(--bg-color); color: var(--text-color); z-index: 1000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 0; overflow: hidden; }
+        .view-overlay.active { display: flex; }
+        .view-transition { animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.97) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .qr-giant-frame { background: #ffffff; padding: 1.25rem; border-radius: 1.5rem; width: 100%; max-width: 720px; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; }
+        #pix-qr-box, #wifi-qr-box, #whatsapp-qr { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .qr-giant-frame canvas, .qr-giant-frame img { max-width: 100% !important; max-height: 100% !important; width: 100% !important; height: auto !important; object-fit: contain; border-radius: 0; image-rendering: pixelated; }
+
+        .minimal-input { width: 100%; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-size: 1rem; outline: none; transition: border-color 0.3s; color: var(--text-color); }
+        .minimal-input:focus { border-color: var(--primary-color); }
+        select.minimal-input, input[type="date"].minimal-input { cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 12px top 50%; background-size: 16px auto; }
+        input[type="date"].minimal-input { background-image: none; }
+        select.minimal-input option { background: #18181b; color: #fff; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 100%; height: 40px; border-radius: 8px; cursor: pointer; padding: 0; background: none; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
+
+        #message-box { position: absolute; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px); z-index: 2000; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; pointer-events: none; }
+        #message-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .custom-scroll::-webkit-scrollbar { width: 0px; }
+        body, .terminal-container { padding-top: constant(safe-area-inset-top); padding-top: env(safe-area-inset-top); }
+
+        .thermal-paper { background: #fdfdfd; color: #111111; box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-family: 'Space Mono', monospace; position: relative; background-image: linear-gradient(#e5e5e5 1px, transparent 1px); background-size: 100% 24px; }
+        .thermal-paper::before { content: ''; position: absolute; bottom: -8px; left: 0; right: 0; height: 8px; background: radial-gradient(circle, transparent 4px, #fdfdfd 4px); background-size: 12px 16px; background-position: -4px -8px; }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } body { background: white !important; color: black !important; } .thermal-paper { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; } }
+    </style>
+</head>
+
+<body>
+
+<div id="screensaver" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000000;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;color:#ffffff;cursor:pointer;margin:0;padding:0;box-sizing:border-box;transition: background-color 0.5s;">
+    <div class="screensaver-content relative z-[10001] w-full max-w-md px-6 flex flex-col justify-between h-[85vh]">
+        <div class="flex flex-col items-center mt-6 select-none">
+            <span class="text-zinc-400 text-[16px] tracking-[0.25em] uppercase font-bold mb-4">ACEITAMOS</span>
+            <div class="grid grid-cols-3 gap-8 text-center justify-center items-end mb-4">
+                <div class="flex flex-col items-center gap-3"><span class="text-[12px] text-zinc-400 font-bold tracking-[0.12em]">DINHEIRO</span><img src="dinheiro.png" class="w-30 h-30 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" alt="Dinheiro" onerror="this.style.display='none'"></div>
+                <div class="flex flex-col items-center gap-3"><span class="text-[12px] text-zinc-400 font-bold tracking-[0.12em]">PIX</span><img src="pix.png" class="w-30 h-30 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" alt="PIX" onerror="this.style.display='none'"></div>
+                <div class="flex flex-col items-center gap-3"><span class="text-[12px] text-zinc-400 font-bold tracking-[0.12em]">CARTÃO</span><img src="cartão.png" class="w-30 h-30 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" alt="Cartão" onerror="this.style.display='none'"></div>
+            </div>
+            <p id="ss-tax-info" class="text-[16px] text-zinc-500 font-bold uppercase tracking-widest text-center">* Pagamento no crédito e débito sujeito a taxa</p>
+        </div>
+        <div class="flex flex-col items-center mt-auto mb-4 select-none">
+            <div id="ss-date" class="font-sans text-center tracking-[0.16em] font-semibold text-[13px] text-zinc-300 uppercase">--</div>
+            <div id="ss-weekday" class="font-sans text-center tracking-[0.16em] font-semibold text-[13px] text-zinc-400 uppercase mt-1">--</div>
+        </div>
+        <div id="ss-time" class="font-serif font-light text-center leading-none tracking-normal mb-8 select-none text-[6.5rem] md:text-[8rem] text-white" style="font-family:'Cormorant Garamond','Times New Roman',serif;">--:--:--</div>
+    </div>
+</div>
+
+<div class="terminal-container">
+    <div id="message-box" class="bg-zinc-900 border border-zinc-800 text-white px-5 py-3 rounded-full text-xs font-medium flex items-center gap-3 shadow-2xl">
+        <div id="msg-dot" class="w-1.5 h-1.5 bg-white rounded-full"></div><span id="message-text" class="tracking-wide">Processando</span>
+    </div>
+
+    <!-- Barra Superior -->
+    <div class="px-6 pt-8 pb-4 flex justify-between items-center z-10 w-full absolute top-0 left-0">
+        <div class="flex items-center gap-2">
+            <div id="status-dot" class="w-[7px] h-[7px] bg-emerald-500 rounded-full transition-colors duration-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+            <span class="text-[9px] font-bold tracking-[0.15em] text-white/30 uppercase">SISTEMA ATIVO</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="window.toggleFullScreen()" id="btn-fullscreen" class="text-white/35 hover:text-white transition-all active:scale-90 flex items-center justify-center p-1.5 bg-black/10 hover:bg-black/30 rounded-full" title="Tela Cheia"><i data-lucide="maximize" size="13"></i></button>
+            <button onclick="window.requestSettingsAccess()" class="text-white/40 hover:text-white transition-all flex items-center gap-1.5 p-1 bg-black/10 hover:bg-black/20 rounded-full pr-2">
+                <span id="clock" class="tracking-wider text-xs font-mono">00:00:00</span><i data-lucide="settings" class="opacity-60" size="12"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- AREA PRINCIPAL -->
+    <div class="flex-1 relative flex flex-col min-h-0 overflow-hidden w-full pt-12">
+        <div id="view-main" class="flex-1 flex flex-col px-6 pb-6 view-transition justify-between">
+            <div class="text-center mt-4 mb-2 flex flex-col items-center justify-center select-none">
+                <h1 id="terminal-name-header" class="text-[22px] font-black tracking-wider uppercase text-primary mb-1">MOBILIDADE URBANA</h1>
+                <p class="text-[12px] font-black text-primary tracking-widest uppercase opacity-80 mb-3">Formas de pagamento</p>
+                <div class="flex items-center gap-3 opacity-90 scale-95 mb-2">
+                    <img src="dinheiro.png" class="w-20 h-20 object-contain" alt="Dinheiro" onerror="this.style.display='none'">
+                    <img src="pix.png" class="w-20 h-20 object-contain" alt="PIX" onerror="this.style.display='none'">
+                    <img src="cartão.png" class="w-20 h-20 object-contain" alt="Cartão" onerror="this.style.display='none'">
+                </div>
+                <p id="main-tax-info" class="text-[18px] text-zinc-400 font-bold uppercase tracking-widest text-center opacity-80"> Pagamento no crédito e débito sujeito a taxa</p>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center w-full relative mb-4">
+                <div class="relative inline-flex items-center leading-none select-none">
+                    <span id="display-currency" class="text-xl md:text-2xl font-black text-white/20 mr-2 uppercase tracking-wide">R$</span>
+                    <span id="display-value" class="main-digit transition-transform duration-75 transform origin-center text-[#d8dee9]">0,00</span>
+                </div>
+            </div>
+
+            <div id="keypad-ui" class="w-full max-w-[360px] mx-auto mt-auto">
+                <div class="keypad-grid">
+                    <button class="keypad-btn" onclick="window.pressKey('1')">1</button>
+                    <button class="keypad-btn" onclick="window.pressKey('2')">2</button>
+                    <button class="keypad-btn" onclick="window.pressKey('3')">3</button>
+                    <button class="keypad-btn" onclick="window.pressKey('4')">4</button>
+                    <button class="keypad-btn" onclick="window.pressKey('5')">5</button>
+                    <button class="keypad-btn" onclick="window.pressKey('6')">6</button>
+                    <button class="keypad-btn" onclick="window.pressKey('7')">7</button>
+                    <button class="keypad-btn" onclick="window.pressKey('8')">8</button>
+                    <button class="keypad-btn" onclick="window.pressKey('9')">9</button>
+                    <button class="keypad-btn special" onclick="window.pressKey('*')">*</button>
+                    <button class="keypad-btn" onclick="window.pressKey('0')">0</button>
+                    <button class="keypad-btn" onclick="window.pressKey('back')" style="opacity: 0.65;"><i data-lucide="delete" stroke-width="1.8" size="22"></i></button>
+                </div>
+                <button class="btn-enter-pdv mt-2" onclick="window.handleAction()">
+                    <span>COBRAR</span><i data-lucide="arrow-right" stroke-width="2.5" size="18"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-payment-methods" class="view-overlay z-[60]" style="background: rgba(24,24,27,0.95); backdrop-filter: blur(10px);">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6 max-w-md mx-auto view-transition">
+                <h2 class="text-white font-black uppercase text-xl mb-1 tracking-widest text-center">Pagamento</h2>
+                <p id="payment-amount-display" class="text-primary font-bold text-4xl mb-6 tracking-tighter">R$ 0,00</p>
+                <div class="w-full flex flex-col gap-3">
+                    <button onclick="window.selectPaymentMethod('PIX')" class="w-full py-4 bg-[#2a2a2a] rounded-2xl text-white font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-between px-6 border border-white/5 active:scale-95 transition-all"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-[11px]">1</div> PIX (Automático)</div><i data-lucide="chevron-right" class="opacity-30" size="18"></i></button>
+                    <button onclick="window.selectPaymentMethod('Cartão de Crédito')" class="w-full py-4 bg-[#2a2a2a] rounded-2xl text-white font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-between px-6 border border-white/5 active:scale-95 transition-all"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center font-bold text-[11px]">2</div> Crédito (Máquina)</div><i data-lucide="chevron-right" class="opacity-30" size="18"></i></button>
+                    <button onclick="window.selectPaymentMethod('Cartão de Débito')" class="w-full py-4 bg-[#2a2a2a] rounded-2xl text-white font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-between px-6 border border-white/5 active:scale-95 transition-all"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-500 flex items-center justify-center font-bold text-[11px]">3</div> Débito (Máquina)</div><i data-lucide="chevron-right" class="opacity-30" size="18"></i></button>
+                    <button onclick="window.selectPaymentMethod('Dinheiro')" class="w-full py-4 bg-[#2a2a2a] rounded-2xl text-white font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-between px-6 border border-white/5 active:scale-95 transition-all"><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-[11px]">4</div> Dinheiro (Troco)</div><i data-lucide="chevron-right" class="opacity-30" size="18"></i></button>
+                </div>
+                <p class="mt-8 text-white/25 text-[8px] tracking-[0.2em] font-black uppercase text-center select-none">Dica: use teclado físico teclas 1, 2, 3 ou 4</p>
+                <button onclick="window.closePaymentMethods()" class="mt-4 text-white/50 text-[10px] font-bold uppercase tracking-[0.2em] py-4 px-8 rounded-full border border-white/10 active:scale-95 transition-all hover:bg-white/5">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- TELA DE REPASSE DE TAXA CARTÃO -->
+        <div id="view-card-tax" class="view-overlay z-[65]" style="background: rgba(24,24,27,0.98);">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6 max-w-md mx-auto view-transition">
+                <h2 id="card-tax-title" class="text-white font-black uppercase text-xl mb-8 tracking-widest text-center">COBRANÇA NO CARTÃO</h2>
+                
+                <div class="w-full bg-black/40 border border-white/10 pt-6 pb-6 px-6 rounded-3xl mb-8 relative shadow-inner flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-white/5 pb-4">
+                        <span class="text-white/60 text-[11px] uppercase font-bold tracking-[0.15em]">Valor do Serviço</span>
+                        <span id="card-original-display" class="text-white font-bold text-lg">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2">
+                        <span id="card-tax-label" class="text-red-400 text-[11px] uppercase font-bold tracking-[0.15em]">Taxa (0%)</span>
+                        <span id="card-tax-display" class="text-red-400 font-bold text-lg">+ R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center w-full mb-10 px-6 py-6 bg-primary/10 rounded-2xl border border-primary/20">
+                    <span class="text-primary text-[11px] uppercase font-black tracking-[0.15em]">Cobrar na Máquina</span>
+                    <span id="card-total-display" class="text-primary font-black text-3xl tracking-tight">R$ 0,00</span>
+                </div>
+
+                <div class="flex gap-3 w-full mt-auto">
+                    <button onclick="window.closeCardTax()" class="flex-1 py-[18px] rounded-full bg-[#2a2a2a] text-white text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-white/5">Cancelar</button>
+                    <button id="btn-confirm-card" onclick="window.confirmCardPayment()" class="flex-[1.5] py-[18px] rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-[0.1em] active:scale-[0.98] transition-all">Confirmar (Enter)</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-cash-change" class="view-overlay z-[70]" style="background: rgba(24,24,27,0.98);">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6 max-w-md mx-auto view-transition">
+                <h2 class="text-white font-black uppercase text-xl mb-8 tracking-widest text-center">Dinheiro</h2>
+                <div class="flex justify-between w-full mb-3 px-2"><span class="text-white/50 text-[10px] uppercase font-bold tracking-[0.2em]">Total a Pagar</span><span id="cash-total-display" class="text-white font-bold">R$ 0,00</span></div>
+                <div class="w-full bg-black/40 border border-white/10 pt-4 pb-6 px-6 rounded-3xl mb-6 relative shadow-inner">
+                    <label class="text-primary text-[9px] uppercase font-bold tracking-[0.2em] mb-4 block text-center">Valor Recebido do Cliente (R$)</label>
+                    <input type="number" id="input-cash-received" class="w-full bg-transparent text-white text-5xl font-black text-center outline-none tracking-tighter" placeholder="0,00" step="0.01" oninput="window.calcChange()">
+                </div>
+                <div class="flex justify-between items-center w-full mb-10 px-5 py-6 bg-[#017851]/10 rounded-2xl border border-[#017851]/20">
+                    <span class="text-[#017851] text-[11px] uppercase font-black tracking-[0.2em]">Troco a Devolver</span><span id="cash-change-display" class="text-[#017851] font-black text-3xl tracking-tight">R$ 0,00</span>
+                </div>
+                <div class="flex gap-3 w-full mt-auto">
+                    <button onclick="window.closeCashChange()" class="flex-1 py-[18px] rounded-full bg-[#2a2a2a] text-white text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-white/5">Voltar</button>
+                    <button id="btn-confirm-cash" onclick="window.confirmCashPayment()" class="flex-[1.5] py-[18px] rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-[0.1em] active:scale-[0.98] transition-all opacity-50 cursor-not-allowed" disabled>Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-pix" class="view-overlay custom-scroll z-10">
+            <div class="flex flex-col items-center justify-center text-center w-full h-full py-8">
+                <div class="qr-giant-frame mb-6 mt-auto"><div id="pix-qr-box" class="mx-auto w-full h-full flex items-center justify-center"></div></div>
+                <div class="mb-10 text-center flex flex-col items-center justify-center"><p id="pix-status-text" class="text-zinc-500 text-[9px] uppercase tracking-[0.15em] mb-2 font-bold">A LIGAR AO BANCO...</p><span class="text-[40px] font-bold tracking-tight text-white leading-none" id="pix-amount-label">R$ 0,00</span></div>
+                <div class="w-full max-w-[320px] flex flex-col gap-3 px-4 pb-4 mt-auto mx-auto">
+                    <button id="btn-test-payment" onclick="window.simulateTestPayment()" class="hidden w-full py-[18px] bg-blue-600/20 text-blue-500 rounded-[24px] text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-blue-500/30">Simular Pagamento (Teste)</button>
+                    <button onclick="window.copyPix()" class="w-full py-[18px] bg-[#2a2a2a] rounded-[24px] text-[10px] text-white font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-white/5">Copiar Código PIX</button>
+                    <button onclick="window.resetTerminal()" class="w-full py-[18px] text-[#888] text-[9px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform hover:text-white mt-1">Cancelar / Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-success" class="view-overlay z-50">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6">
+                <div class="w-[88px] h-[88px] bg-[#017851] rounded-full flex items-center justify-center mb-6 mt-auto shadow-[0_0_40px_rgba(1,120,81,0.6)] animate-pulse"><i data-lucide="check" class="text-white" stroke-width="4" size="40"></i></div>
+                <h2 class="text-[#017851] font-black uppercase text-[28px] md:text-4xl leading-[1.1] mb-3 tracking-[0.1em] text-center max-w-[320px]">PAGAMENTO<br>CONFIRMADO!</h2>
+                <p id="success-message-display" class="font-bold opacity-70 text-[10px] tracking-[0.15em] text-white uppercase mb-4 text-center">Obrigado pela preferência!</p>
+                <div class="flex flex-col gap-3 w-full max-w-[280px] mt-auto mb-6">
+                    <button id="btn-show-receipt" class="w-full py-4 bg-primary text-black font-bold text-[10px] uppercase tracking-[0.1em] rounded-[24px] active:scale-95 transition-all">Ver Comprovante</button>
+                    <button onclick="window.resetTerminal()" class="w-full py-4 bg-[#2a2a2a] rounded-[24px] text-white font-bold text-[10px] uppercase tracking-[0.1em] active:scale-95 transition-transform border border-white/5">Início</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-receipt" class="view-overlay z-[80] custom-scroll overflow-y-auto" style="background: rgba(10,10,12,0.95); padding: 24px 16px;">
+            <div class="w-full max-w-sm mx-auto flex flex-col h-full justify-between py-4">
+                <div class="thermal-paper p-6 rounded-t-lg text-left text-xs tracking-wider space-y-3 mb-6 shadow-2xl">
+                    <div class="text-center font-bold">
+                        <p class="text-base uppercase tracking-widest" id="receipt-store-name">TERMINAL PDV</p><p class="text-[9px] opacity-70">SISTEMA INTEGRADO DE CAIXA</p>
+                        <p class="my-2">--------------------------------</p><p class="text-[11px] uppercase font-black">COMPROVANTE DE PAGAMENTO</p><p>--------------------------------</p>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between"><span>DATA/HORA:</span><span id="rc-date">--/--/---- --:--</span></div>
+                        <div class="flex justify-between"><span>TRANSACAO ID:</span><span id="rc-txid" class="font-bold">--</span></div>
+                        <div class="flex justify-between flex-wrap gap-x-2"><span>METODO:</span><span id="rc-method" class="font-bold uppercase text-right flex-1">PIX</span></div>
+                        <div class="flex justify-between"><span>STATUS:</span><span class="font-bold">APROVADO</span></div>
+                    </div>
+                    <p class="text-center">--------------------------------</p>
+                    <div class="flex justify-between font-bold text-sm"><span>TOTAL PAGO:</span><span id="rc-amount">R$ 0,00</span></div>
+                    <p class="text-center">--------------------------------</p>
+                    <div class="text-center text-[9px] leading-relaxed opacity-80 pt-2">
+                        <p id="rc-custom-msg">Obrigado pela preferência!</p><p class="mt-4 font-mono">Volte Sempre!</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 w-full no-print">
+                    <button onclick="window.sendReceiptWhatsApp()" class="w-full py-4 bg-[#25D366] text-black font-black text-[10px] uppercase tracking-[0.1em] rounded-full active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="phone" size="14"></i> Enviar por WhatsApp</button>
+                    <button onclick="window.printReceipt()" class="w-full py-4 bg-white text-black font-black text-[10px] uppercase tracking-[0.1em] rounded-full active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="printer" size="14"></i> Imprimir Recibo</button>
+                    <button onclick="window.resetTerminal()" class="w-full py-4 bg-zinc-800 text-white font-bold text-[10px] uppercase tracking-[0.1em] rounded-full active:scale-95 transition-all">Voltar ao Início</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-wifi" class="view-overlay custom-scroll z-10">
+            <div class="flex flex-col items-center justify-center w-full h-full py-12 px-6">
+                <h2 class="text-[20px] font-bold mb-1 tracking-wide text-white mt-auto">Wi-Fi</h2><p class="text-[9px] mb-8 uppercase tracking-[0.15em] opacity-50 text-white">Conexão Automática</p>
+                <div class="qr-giant-frame mb-10"><div id="wifi-qr-box" class="mx-auto w-full h-full flex items-center justify-center"></div></div>
+                <div class="w-full space-y-6 mb-8 text-center flex flex-col items-center">
+                    <div class="flex flex-col items-center justify-center"><p class="text-[8px] uppercase tracking-[0.2em] mb-1 opacity-50 text-white">Rede</p><p id="wifi-ssid-val" class="text-[15px] font-semibold text-white">--</p></div>
+                    <div class="flex flex-col items-center justify-center"><p class="text-[8px] uppercase tracking-[0.2em] mb-1 opacity-50 text-white">Senha</p><p id="wifi-pass-val" class="text-[14px] font-mono tracking-wider opacity-90 text-white">--</p></div>
+                </div>
+                <button onclick="window.resetTerminal()" class="px-10 py-[14px] rounded-full bg-white text-black text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all mt-auto mb-6 border border-white">VOLTAR</button>
+            </div>
+        </div>
+
+        <div id="view-support" class="view-overlay custom-scroll z-10">
+            <div class="flex flex-col items-center justify-center w-full h-full py-12 px-6">
+                <h2 class="text-[20px] font-bold mb-1 tracking-wide text-white mt-auto">CONTATO</h2><p class="text-[9px] mb-8 uppercase tracking-[0.15em] opacity-50 text-white">WhatsApp</p>
+                <div class="qr-giant-frame mb-10 mx-auto"><div id="whatsapp-qr"></div></div>
+                <p class="text-[11px] text-center leading-relaxed max-w-[250px] mb-8 opacity-70 font-bold text-white">Aponte a câmara para abrir o WhatsApp</p>
+                <button onclick="window.resetTerminal()" class="px-10 py-[14px] rounded-full bg-white text-black text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all mt-auto mb-6 border border-white">VOLTAR</button>
+            </div>
+        </div>
+
+        <div id="view-sales" class="view-overlay flex-col p-8 view-transition z-20">
+            <div class="flex justify-between items-center mb-6 w-full max-w-md mx-auto">
+                <h2 class="text-3xl font-light tracking-tighter text-white">Métricas & Vendas</h2>
+                <div class="flex gap-2">
+                    <button onclick="window.exportToCSV()" class="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all" title="Exportar"><i data-lucide="download" stroke-width="1.5" size="18"></i></button>
+                    <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all"><i data-lucide="x" stroke-width="1.5"></i></button>
+                </div>
+            </div>
+
+            <!-- Dashboard Métricas Resumo (Mostra Apenas os Valores LÍQUIDOS recebidos pela Loja) -->
+            <div class="grid grid-cols-2 gap-2 mb-4 w-full max-w-md mx-auto text-center">
+                <div class="bg-primary/10 border border-primary/20 rounded-xl p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-primary/70 tracking-widest mb-1">Média Mensal</span>
+                    <span id="stat-avg-month" class="text-lg font-black text-primary tracking-tight truncate">R$ 0,00</span>
+                </div>
+                <div class="bg-white/5 border border-white/5 rounded-xl p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-white/50 tracking-widest mb-1">Média Semanal</span>
+                    <span id="stat-avg-week" class="text-lg font-black text-white tracking-tight truncate">R$ 0,00</span>
+                </div>
+                <div class="bg-white/5 border border-white/5 rounded-xl p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-white/50 tracking-widest mb-1">Média Diária</span>
+                    <span id="stat-avg-day" class="text-lg font-black text-white tracking-tight truncate">R$ 0,00</span>
+                </div>
+                <div class="bg-white/5 border border-white/5 rounded-xl p-3 flex flex-col justify-center">
+                    <span class="text-[8px] uppercase font-bold text-white/50 tracking-widest mb-1">Total Mês (<span id="stat-month-count">0</span>)</span>
+                    <span id="stat-month-total" class="text-lg font-black text-white tracking-tight truncate">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- Filtros Avançados -->
+            <div class="flex flex-col gap-2 mb-3 w-full max-w-md mx-auto" id="sales-advanced-filters">
+                <div class="flex gap-2 w-full">
+                    <button onclick="window.filterSales('all')" id="btn-filter-all" class="flex-1 py-2 rounded-lg bg-primary text-[10px] uppercase font-bold text-black border border-primary transition-all">Todos</button>
+                    <button onclick="window.filterSales('paid')" id="btn-filter-paid" class="flex-1 py-2 rounded-lg bg-black/20 text-[10px] uppercase font-bold text-white/50 border border-white/5 transition-all">Pagos</button>
+                    <button onclick="window.filterSales('pending')" id="btn-filter-pending" class="flex-1 py-2 rounded-lg bg-black/20 text-[10px] uppercase font-bold text-white/50 border border-white/5 transition-all">Pend.</button>
+                </div>
+                <div class="flex gap-2 w-full mt-1">
+                    <div class="flex flex-col flex-1 gap-1">
+                        <span class="text-[8px] uppercase font-bold text-white/50 ml-1">Data Início</span>
+                        <input type="date" id="filter-date-start" onchange="window.renderSales()" class="minimal-input py-2 text-[10px] h-[36px]" style="padding: 8px;">
+                    </div>
+                    <div class="flex flex-col flex-1 gap-1">
+                        <span class="text-[8px] uppercase font-bold text-white/50 ml-1">Data Fim</span>
+                        <input type="date" id="filter-date-end" onchange="window.renderSales()" class="minimal-input py-2 text-[10px] h-[36px]" style="padding: 8px;">
+                    </div>
+                </div>
+                <div class="flex gap-2 w-full mt-1">
+                    <select id="filter-method" onchange="window.renderSales()" class="minimal-input flex-1 py-2 text-[10px] h-[36px]" style="padding: 8px;">
+                        <option value="all">Todas Formas de Pagamento</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Crédito</option>
+                        <option value="Cartão de Débito">Débito</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Lista de Vendas (Acordeão) -->
+            <div class="flex-1 overflow-y-auto w-full max-w-md mx-auto pr-2 custom-scroll mt-1" id="sales-list"></div>
+            
+            <!-- Rodapé Dinâmico focado em "O que vai entrar nos saldo" (Líquido) e Taxas -->
+            <div class="w-full max-w-md mx-auto pt-4 mt-2 border-t border-white/10 flex justify-between items-end shrink-0 gap-1">
+                <div class="flex flex-col items-start opacity-70">
+                    <p class="text-[8px] uppercase tracking-widest text-zinc-400 mb-1">Total de Taxas</p>
+                    <p id="sales-total-taxes" class="text-sm font-bold text-red-400 leading-none">R$ 0,00</p>
+                </div>
+                <div class="flex flex-col items-end">
+                    <p id="sales-footer-legend" class="text-[9px] uppercase tracking-widest opacity-60 text-white text-right mb-1">Total Recebido (Líquido)</p>
+                    <p id="sales-total" class="text-3xl font-black text-primary leading-none">R$ 0,00</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-pin" class="view-overlay z-[150]" style="background: rgba(24,24,27,0.98);">
+            <div class="flex flex-col items-center justify-center h-full w-full py-12 px-6 max-sm-sm mx-auto view-transition">
+                <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6"><i data-lucide="lock" class="text-white/80" size="24"></i></div>
+                <h2 class="text-white font-black uppercase text-xl mb-2 tracking-widest text-center">Acesso Restrito</h2>
+                <p class="text-white/50 text-[10px] uppercase font-bold tracking-[0.15em] text-center mb-8">Insira o PIN de Administrador</p>
+                <input type="password" id="input-admin-pin-auth" class="w-full bg-black/40 text-white text-3xl font-black text-center outline-none tracking-[0.5em] py-4 rounded-2xl border border-white/10 mb-8" placeholder="••••" maxlength="4" inputmode="numeric">
+                <div class="flex gap-3 w-full">
+                    <button onclick="window.closePinModal()" class="flex-1 py-[16px] rounded-full bg-[#2a2a2a] text-white text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-white/5">Cancelar</button>
+                    <button onclick="window.verifyPin()" class="flex-[1.5] py-[16px] rounded-full bg-primary text-black text-[10px] font-black uppercase tracking-[0.1em] active:scale-[0.98] transition-all">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view-overlay flex-col p-6 view-transition z-20">
+            <div class="flex justify-between items-center mb-8 w-full max-w-md mx-auto mt-4">
+                <h2 class="text-3xl font-light tracking-tighter text-white">Ajustes</h2>
+                <button onclick="window.resetTerminal()" class="w-10 h-10 flex items-center justify-end text-white"><i data-lucide="x" stroke-width="1.5"></i></button>
+            </div>
+
+            <div class="space-y-4 flex-1 overflow-y-auto w-full max-w-md mx-auto pr-2 custom-scroll pb-10">
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-sys')"><span>Identificação & Sistema</span><i data-lucide="chevron-down" size="22"></i></div>
+                <div id="acc-sys" class="hidden px-2 pb-8 space-y-6 text-left">
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Nome do Terminal</label><input type="text" id="input-terminal-name" class="minimal-input mt-1" placeholder="Ex: MOBILIDADE URBANA"></div>
+                    <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5"><label class="text-[11px] uppercase font-black text-white">Teclado Virtual Ativo</label><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="input-use-virtual-kb" class="sr-only peer" checked><div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label></div>
+                    <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5"><div><label class="text-[11px] uppercase font-black text-white block">Sons do Teclado</label><span class="text-[9px] text-white/50">Beeps de botões</span></div><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="input-enable-beep" class="sr-only peer" checked><div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label></div>
+                    <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/5"><div><label class="text-[11px] uppercase font-black text-white block">Som de Sucesso</label><span class="text-[9px] text-white/50">Som de Caixa Registradora</span></div><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="input-enable-success-sound" class="sr-only peer" checked><div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">PIN de Admin (4 dígitos)</label><input type="password" id="input-admin-pin" class="minimal-input mt-1" placeholder="0000" maxlength="4"><p class="text-[8px] mt-1 text-white/40 ml-1">Deixe em branco para '0000'</p></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Mensagem do Recibo de Venda</label><input type="text" id="input-success-msg" class="minimal-input mt-1" placeholder="Ex: Siga nosso Instagram @SuaLoja"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Tempo para Descanso de Tela</label><select id="input-screensaver-delay" class="minimal-input mt-1"><option value="5">5 Segundos</option><option value="10">10 Segundos</option><option value="15">15 Segundos</option><option value="30">30 Segundos</option><option value="60">60 Segundos</option><option value="0">Nunca</option></select></div>
+                </div>
+
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-taxes')"><span>Taxas e Tarifas (%)</span><i data-lucide="chevron-down" size="22"></i></div>
+                <div id="acc-taxes" class="hidden px-2 pb-8 space-y-6 text-left">
+                    <p class="text-[10px] text-zinc-400 font-medium">As taxas de Crédito e Débito serão somadas ao valor cobrado (Repasse ao cliente). A taxa PIX API será descontada do seu recebimento.</p>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Taxa PIX API (%)</label><input type="number" step="0.01" id="input-tax-pix" class="minimal-input mt-1" placeholder="0.99"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Taxa Cartão de Crédito (%)</label><input type="number" step="0.01" id="input-tax-credit" class="minimal-input mt-1" placeholder="5.00"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Taxa Cartão de Débito (%)</label><input type="number" step="0.01" id="input-tax-debit" class="minimal-input mt-1" placeholder="2.00"></div>
+                </div>
+
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-mp')"><span>Cobrança API & PIX</span><i data-lucide="chevron-down" size="22"></i></div>
+                <div id="acc-mp" class="hidden px-2 pb-8 space-y-6 text-left">
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Chave PIX (Plano B / Reserva)</label><input type="text" id="input-pix-key" class="minimal-input mt-1" placeholder="CPF, Celular ou Email"></div>
+                    <div class="flex items-center justify-between bg-primary/10 p-4 rounded-xl border border-primary/20 mt-4"><div><label class="text-[11px] uppercase font-black text-primary block">Modo de Teste</label><span class="text-[9px] text-primary/60">Simula cobranças sem cobrar</span></div><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="input-use-test-mode" class="sr-only peer"><div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Access Token (PRODUÇÃO)</label><input type="password" id="input-api-key-prod" class="minimal-input mt-1" placeholder="APP_USR-..."></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Access Token (TESTE)</label><input type="password" id="input-api-key-test" class="minimal-input mt-1" placeholder="TEST-..."></div>
+                    <button id="btn-test-mp" onclick="window.testMPConnection()" class="w-full py-3 bg-white/10 rounded-xl text-[10px] text-white font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-white/5 mt-2">Testar Token</button>
+                </div>
+
+                <div class="config-bar text-white" onclick="window.toggleAcc('acc-wifi')"><span>Configuração Wi-Fi</span><i data-lucide="chevron-down" size="22"></i></div>
+                <div id="acc-wifi" class="hidden px-2 pb-8 space-y-6 text-left">
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Nome da Rede (SSID)</label><input type="text" id="input-wifi-ssid" class="minimal-input mt-1" placeholder="SSID da Rede"></div>
+                    <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Senha da Rede</label><input type="password" id="input-wifi-pass" class="minimal-input mt-1" placeholder="Senha da Rede"></div>
+                </div>
+
+                <div class="config-bar text-white border border-primary/20 bg-primary/5" onclick="window.toggleAcc('acc-visual')"><span>Personalização Visual</span><i data-lucide="chevron-down" size="22"></i></div>
+                <div id="acc-visual" class="hidden px-2 pb-8 space-y-6 text-left">
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 mx-2"><label class="text-[10px] uppercase font-black opacity-60 block mb-2 text-white">Temas Premium</label><select id="input-preset-theme" class="minimal-input" onchange="window.applyPresetTheme()"><option value="custom">Personalizado (Misto)</option><option value="mobilidade">Mobilidade (Original)</option><option value="carbon">Carbono</option><option value="oled">Preto Absoluto OLED</option><option value="ocean">Oceano Escuro</option><option value="terracotta">Terracota</option><option value="gold">Dourado Imperial</option><option value="ruby">Rubi</option><option value="emerald">Esmeralda Pro</option></select></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo App</label><input type="color" id="cfg-bg-color" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto App</label><input type="color" id="cfg-text-color" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo Teclas</label><input type="color" id="cfg-keypad-bg" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto Teclas</label><input type="color" id="cfg-keypad-text" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Fundo Botão</label><input type="color" id="cfg-btn-bg" oninput="window.previewTheme()"></div>
+                        <div><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Texto Botão</label><input type="color" id="cfg-btn-text" oninput="window.previewTheme()"></div>
+                        <div class="col-span-2"><label class="text-[10px] uppercase font-black ml-1 opacity-60 text-white">Destaque Principal</label><input type="color" id="cfg-primary-color" oninput="window.previewTheme()"></div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-8 border-t border-red-500/20">
+                    <h3 class="text-red-500 font-black uppercase tracking-widest text-[10px] mb-4 text-center">Zona de Perigo</h3>
+                    <button onclick="window.clearAllSales()" class="w-full py-4 rounded-xl bg-red-500/10 text-red-500 text-[9px] font-black uppercase tracking-[0.1em] active:scale-95 transition-all border border-red-500/20 hover:bg-red-500 hover:text-white">APAGAR TODO O HISTÓRICO DE VENDAS</button>
+                </div>
+            </div>
+            <button onclick="window.saveSettings()" id="btn-save" class="mt-4 w-full max-w-md mx-auto py-5 rounded-full bg-white text-black font-bold uppercase tracking-[0.2em] text-[10px] active:scale-[0.98] transition-all">Salvar Definições</button>
+        </div>
+    </div>
+
+    <!-- CONFIRM DIALOG -->
+    <div id="view-confirm" class="view-overlay z-[2000]" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl max-w-[320px] w-[90%] text-center shadow-2xl transform transition-all duration-200 scale-95 opacity-0" id="confirm-box">
+            <div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4" id="confirm-icon"><i data-lucide="alert-triangle" size="28" stroke-width="2"></i></div>
+            <h3 id="confirm-title" class="text-white font-black text-xl mb-2 tracking-tight">Confirmação</h3>
+            <p id="confirm-msg" class="text-zinc-400 text-[11px] mb-8 leading-relaxed">Tem a certeza que deseja continuar?</p>
+            <div class="flex gap-3">
+                <button onclick="window.closeConfirm()" class="flex-1 py-4 rounded-2xl bg-[#2a2a2a] text-white text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-white/5">Cancelar</button>
+                <button id="btn-execute-confirm" onclick="window.executeConfirm()" class="flex-1 py-4 rounded-2xl bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-primary/20 hover:bg-primary hover:text-black">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+    window.currentDigits = ""; window.salesData = []; window.salesFilter = 'all';
+    window.pendingSaleAmount = 0; window.unsubscribePayment = null; window.mpPollInterval = null; window.paymentCheckInterval = null;
+    window.inactivityTimerLeft = 60; window.inactivityInterval = null; window.lastPixString = "";
+    window.db = null; window.auth = null; window.lastGeneratedSale = null;
+    
+    // Variáveis para repasse de taxa do cartão
+    window.pendingTaxRate = 0; window.pendingTaxAmount = 0; window.pendingTotalAmount = 0; window.pendingCardMethod = "";
+
+    window.terminalConfig = { 
+        terminalName: "MOBILIDADE URBANA", pixKey: "", wifiSSID: "", wifiPass: "", whatsapp: "5511999999999", 
+        useVirtualKb: true, screensaverDelay: 30, mpApiKeyProd: "", mpApiKeyTest: "", useTestMode: false,
+        adminPin: "0000", enableBeep: true, enableSuccessSound: true, successMessage: "Obrigado pela preferência!",
+        bgColor: "#232935", textColor: "#ffffff", primaryColor: "#22c55e", keypadBg: "#2d3545", keypadText: "#ffffff", btnBg: "#7c9cbd", btnText: "#1e293b",
+        taxPixApi: 0.99, taxCredit: 5.00, taxDebit: 2.00,
+        useProxyServer: true, // ✅ ATIVADO - Usando proxy local para evitar CORS
+        proxyUrl: "http://localhost:3000" // URL do servidor proxy
+    };
+
+    window.generateSafeId = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); });
+
+    const firebaseConfig = { apiKey: "AIzaSyD3E7c_4jbnLJCGCapM5L8rta6AXVHvZgs", authDomain: "indisponivel-rrehfe.firebaseapp.com", databaseURL: "https://indisponivel-rrehfe.firebaseio.com", projectId: "indisponivel-rrehfe", storageBucket: "indisponivel-rrehfe.firebasestorage.app", messagingSenderId: "880210924564", appId: "1:880210924564:web:fd565cdb0e4f04cd7ac301" };
+    const safeAppId = 'pdv_premium_main';
+
+    function crc16(str) {
+        let crc = 0xFFFF;
+        for (let c = 0; c < str.length; c++) {
+            crc ^= str.charCodeAt(c) << 8;
+            for (let i = 0; i < 8; i++) { if (crc & 0x8000) crc = (crc << 1) ^ 0x1021; else crc = crc << 1; }
+        }
+        return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    const themePresets = {
+        'mobilidade': { bg: '#232935', text: '#ffffff', primary: '#22c55e', keyBg: '#2d3545', keyText: '#ffffff', btnBg: '#7c9cbd', btnText: '#1e293b' },
+        'carbon': { bg: '#18181b', text: '#ffffff', primary: '#10b981', keyBg: '#222222', keyText: '#ffffff', btnBg: '#ffffff', btnText: '#000000' },
+        'oled': { bg: '#000000', text: '#ffffff', primary: '#10b981', keyBg: '#111111', keyText: '#ffffff', btnBg: '#10b981', btnText: '#000000' },
+        'ocean': { bg: '#0f172a', text: '#f8fafc', primary: '#3b82f6', keyBg: '#1e293b', keyText: '#f8fafc', btnBg: '#3b82f6', btnText: '#ffffff' },
+        'terracotta': { bg: '#3E2723', text: '#FFDAB9', primary: '#CD5C5C', keyBg: '#4E342E', keyText: '#FFDAB9', btnBg: '#CD5C5C', btnText: '#ffffff' },
+        'gold': { bg: '#1A202C', text: '#FEFCBF', primary: '#D69E2E', keyBg: '#2D3748', keyText: '#FEFCBF', btnBg: '#D69E2E', btnText: '#1A202C' },
+        'ruby': { bg: '#2F4F4F', text: '#FFFAFA', primary: '#DC143C', keyBg: '#3E6161', keyText: '#FFFAFA', btnBg: '#DC143C', btnText: '#ffffff' },
+        'emerald': { bg: '#0b1d1a', text: '#F5FFFA', primary: '#20B2AA', keyBg: '#14332e', keyText: '#F5FFFA', btnBg: '#20B2AA', btnText: '#0b1d1a' }
+    };
+
+    window.syncOfflineSales = () => {
+        if (!navigator.onLine || !window.db || !window.auth || !window.auth.currentUser) return;
+        try {
+            const queue = JSON.parse(localStorage.getItem('pdv_offline_sales_queue') || "[]");
+            if (queue.length === 0) return;
+            queue.forEach(sale => { set(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${sale.transactionId}`), sale).catch(() => {}); });
+            localStorage.removeItem('pdv_offline_sales_queue');
+            window.showMessage(`Sincronizadas ${queue.length} vendas offline!`);
+        } catch(e) {}
+    };
+
+    window.playBeep = () => {
+        if (navigator.vibrate) navigator.vibrate(12); 
+        if (!window.terminalConfig.enableBeep) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.05); oscillator.stop(audioCtx.currentTime + 0.05);
+        } catch(e) {}
+    };
+
+    window.playSuccessProcedural = () => {
+        if (!window.terminalConfig.enableSuccessSound) return;
+        
+        // Cria o objeto de áudio
+        const audio = new Audio('pago.mp3'); 
+        
+        // Força o carregamento antes de tocar
+        audio.load();
+        
+        // Tenta tocar e captura qualquer erro
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                // Reprodução iniciada com sucesso
+            }).catch(error => {
+                console.log("Erro ao tocar no celular:", error);
+                // Tenta uma segunda vez após um milissegundo caso tenha sido bloqueado
+                setTimeout(() => { audio.play(); }, 100);
+            });
+        }
+    };
+
+    window.resetTerminal = () => {
+        if (window.unsubscribePayment) { window.unsubscribePayment(); window.unsubscribePayment = null; }
+        if (window.mpPollInterval) { clearInterval(window.mpPollInterval); window.mpPollInterval = null; }
+        if (window.paymentCheckInterval) { clearInterval(window.paymentCheckInterval); window.paymentCheckInterval = null; }
+        const views = ['view-pix', 'view-wifi', 'view-support', 'view-settings', 'view-sales', 'view-success', 'view-payment-methods', 'view-cash-change', 'view-pin', 'view-receipt', 'view-card-tax'];
+        views.forEach(v => { const el = document.getElementById(v); if(el) el.classList.remove('active'); });
+        window.currentDigits = ""; window.pendingSaleAmount = 0; window.updateDisplay();
+        const pinIn = document.getElementById('input-admin-pin-auth'); if (pinIn) pinIn.value = '';
+        const testBtn = document.getElementById('btn-test-payment'); if (testBtn) testBtn.classList.add('hidden');
+    };
+
+    window.initFirebase = async () => {
+        try {
+            const app = initializeApp(firebaseConfig); window.auth = getAuth(app); window.db = getDatabase(app);
+            await signInAnonymously(window.auth);
+            onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    onValue(ref(window.db, `artifacts/${safeAppId}/public/data/terminal_settings/main`), (snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            window.terminalConfig = { ...window.terminalConfig, ...data }; 
+                            window.updateUIFromConfig(); window.startInactivityTimer && window.startInactivityTimer(); 
+                        }
+                        window.updateNetworkUI(); window.syncOfflineSales(); window.updateTaxLabels();
+                    });
+                    onValue(ref(window.db, `artifacts/${safeAppId}/public/data/sales`), (snapshot) => {
+                        window.salesData = [];
+                        snapshot.forEach(childSnapshot => { window.salesData.push({ id: childSnapshot.key, ...childSnapshot.val() }); });
+                        window.salesData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        window.renderSales();
+                    });
+                }
+            });
+        } catch (e) { window.updateNetworkUI(true); window.applyThemeSettings(); window.updateTaxLabels(); }
+    };
+
+    window.updateTaxLabels = () => {
+        const c = window.terminalConfig;
+        const msg = `* Crédito ${c.taxCredit}% e Débito ${c.taxDebit}%`;
+        const elMain = document.getElementById('main-tax-info'); if (elMain) elMain.textContent = msg;
+        const elSS = document.getElementById('ss-tax-info'); if (elSS) elSS.textContent = msg;
+    };
+
+    window.updateNetworkUI = (forceOffline = false) => {
+        const dot = document.getElementById('status-dot'); if (!dot) return;
+        dot.className = (navigator.onLine && !forceOffline) ? "w-[7px] h-[7px] bg-emerald-500 rounded-full transition-colors duration-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "w-[7px] h-[7px] bg-red-500 rounded-full animate-pulse";
+    };
+    window.addEventListener('online', () => { window.updateNetworkUI(); window.syncOfflineSales(); });
+    window.addEventListener('offline', () => window.updateNetworkUI());
+
+    window.startInactivityTimer = () => {
+        let delay = window.terminalConfig.screensaverDelay !== undefined ? parseInt(window.terminalConfig.screensaverDelay) : 30;
+        if (window.inactivityInterval) clearInterval(window.inactivityInterval);
+        if (delay === 0) return; 
+        window.inactivityTimerLeft = delay;
+        window.inactivityInterval = setInterval(() => {
+            window.inactivityTimerLeft--;
+            const anyOverlayActive = ['view-pix', 'view-wifi', 'view-support', 'view-settings', 'view-sales', 'view-success', 'view-payment-methods', 'view-cash-change', 'view-pin', 'view-receipt', 'view-card-tax'].some(id => document.getElementById(id)?.classList.contains('active'));
+            if (window.inactivityTimerLeft <= 0 && !anyOverlayActive) { window.resetTerminal(); window.showScreensaver(); window.inactivityTimerLeft = delay; }
+        }, 1000);
+    };
+
+    const ss = document.getElementById('screensaver');
+    const ssTime = document.getElementById('ss-time'); const ssDate = document.getElementById('ss-date'); const ssWeek = document.getElementById('ss-weekday');
+    const WEEKDAYS = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
+    const MONTHS = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+
+    const updateSS = () => {
+        const d = new Date();
+        ssTime.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+        ssDate.textContent = `${d.getDate()} DE ${MONTHS[d.getMonth()]} DE ${d.getFullYear()}`;
+        ssWeek.textContent = WEEKDAYS[d.getDay()];
+    };
+    window.showScreensaver = () => { updateSS(); ss.style.display = 'flex'; };
+    window.hideScreensaver = () => { ss.style.display = 'none'; };
+    setInterval(() => { if (ss.style.display === 'flex') updateSS(); }, 1000);
+    ss.addEventListener('click', window.hideScreensaver); ss.addEventListener('touchstart', window.hideScreensaver);
+
+    window.resetActivity = () => { 
+        if (parseInt(window.terminalConfig.screensaverDelay) !== 0) window.inactivityTimerLeft = parseInt(window.terminalConfig.screensaverDelay) || 30; 
+        if (ss.style.display === 'flex') window.hideScreensaver();
+    };
+    ['click', 'mousedown', 'keydown', 'touchstart', 'pointerdown'].forEach(e => window.addEventListener(e, window.resetActivity));
+
+    window.toggleFullScreen = () => {
+        window.playBeep(); const docEl = document.documentElement;
+        try {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullscreenElement && !document.msFullscreenElement) {
+                let p = docEl.requestFullscreen ? docEl.requestFullscreen() : (docEl.webkitRequestFullscreen ? docEl.webkitRequestFullscreen() : null);
+                if (p) p.catch(() => window.showMessage("Modo Imersivo restrito pelo navegador", false));
+            } else {
+                let p = document.exitFullscreen ? document.exitFullscreen() : (document.webkitExitFullscreen ? document.webkitExitFullscreen() : null);
+            }
+        } catch (err) { window.showMessage("Tela cheia indisponível", false); }
+    };
+    const updateFullScreenButton = () => {
+        const btn = document.getElementById('btn-fullscreen'); if (!btn) return;
+        const isFS = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullScreenElement;
+        btn.innerHTML = `<i data-lucide="${isFS ? 'minimize' : 'maximize'}" size="13"></i>`; btn.title = isFS ? "Sair da Tela Cheia" : "Tela Cheia"; lucide.createIcons();
+    };
+    ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(e => document.addEventListener(e, updateFullScreenButton));
+
+    window.pressKey = (key) => {
+        window.playBeep();
+        if (key === 'back') { if (document.querySelectorAll('.view-overlay.active').length > 0) { window.resetTerminal(); return; } window.currentDigits = window.currentDigits.slice(0, -1); } 
+        else if (key === '*') { if (window.currentDigits === "") window.showWifi(); return; }
+        else { if (window.currentDigits.length < 10) window.currentDigits += key; }
+        window.updateDisplay();
+    };
+
+    window.handleAction = () => {
+        try {
+            const v = window.currentDigits === "" ? 0 : parseInt(window.currentDigits);
+            if (v <= 0) { window.showMessage("DIGITE UM VALOR VÁLIDO", false); return; }
+            const cents = v % 100;
+            if (cents === 1 && v < 100) { window.showWifi(); return; }
+            if (cents === 2 && v < 100) { window.showSupport(); return; }
+            if (cents === 3 && v < 100) { window.requestSettingsAccess(); return; }
+            if (cents === 4 && v < 100) { window.showSalesHistory(); return; }
+            window.pendingSaleAmount = v / 100;
+            document.getElementById('payment-amount-display').textContent = window.pendingSaleAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('view-payment-methods').classList.add('active'); lucide.createIcons();
+        } catch (err) {}
+    };
+
+    window.closePaymentMethods = () => document.getElementById('view-payment-methods').classList.remove('active');
+    
+    window.selectPaymentMethod = (method) => {
+        window.closePaymentMethods();
+        if (method === 'PIX') {
+            window.processSale(window.pendingSaleAmount); 
+        } else if (method === 'Dinheiro') {
+            window.openCashChange();
+        } else {
+            // Cartão de Crédito ou Débito -> Repasse de taxa
+            window.openCardTax(method);
+        }
+    };
+
+    window.openCardTax = (method) => {
+        window.pendingCardMethod = method;
+        window.pendingTaxRate = method === 'Cartão de Crédito' ? parseFloat(window.terminalConfig.taxCredit) : parseFloat(window.terminalConfig.taxDebit);
+        
+        window.pendingTaxAmount = window.pendingSaleAmount * (window.pendingTaxRate / 100);
+        window.pendingTotalAmount = window.pendingSaleAmount + window.pendingTaxAmount;
+
+        document.getElementById('card-tax-title').textContent = method.toUpperCase();
+        document.getElementById('card-original-display').textContent = window.pendingSaleAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('card-tax-label').textContent = `Taxa (${window.pendingTaxRate.toFixed(2).replace('.', ',')}%)`;
+        document.getElementById('card-tax-display').textContent = "+ " + window.pendingTaxAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('card-total-display').textContent = window.pendingTotalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        document.getElementById('view-card-tax').classList.add('active');
+    };
+
+    window.closeCardTax = () => document.getElementById('view-card-tax').classList.remove('active');
+    
+    window.confirmCardPayment = () => {
+        window.closeCardTax();
+        // Cartões: O cliente paga a taxa, logo o "amount" (faturado/cobrado) é o total. O "netAmount" (recebido na conta) é o original.
+        window.saveExternalSale(window.pendingTotalAmount, window.pendingCardMethod, window.pendingSaleAmount, window.pendingTaxAmount, window.pendingTaxRate);
+    };
+
+    // Atualizada para suportar explicitamente o que foi cobrado e o que foi recebido
+    window.saveExternalSale = (billedAmount, method, netAmount = billedAmount, taxAmount = 0, taxRate = 0) => {
+        const txId = "EXT_" + Date.now();
+        const saleObj = { 
+            amount: billedAmount,      // Total cobrado ao cliente (ex: 5.25)
+            netAmount: netAmount,      // Total que a loja recebe (ex: 5.00)
+            taxAmount: taxAmount,      // Valor da taxa (ex: 0.25)
+            taxRate: taxRate,
+            timestamp: new Date().toISOString(), 
+            method: method, 
+            status: 'Aprovado', 
+            transactionId: txId, 
+            isApi: false 
+        };
+        if (window.db && window.auth && window.auth.currentUser && navigator.onLine) {
+            set(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${txId}`), saleObj).catch(()=>{});
+        } else {
+            const queue = JSON.parse(localStorage.getItem('pdv_offline_sales_queue') || "[]"); queue.push(saleObj);
+            localStorage.setItem('pdv_offline_sales_queue', JSON.stringify(queue));
+        }
+        window.lastGeneratedSale = saleObj; window.triggerSuccessPayment(billedAmount, txId, false, saleObj);
+    };
+
+    window.openCashChange = () => {
+        document.getElementById('view-cash-change').classList.add('active');
+        document.getElementById('cash-total-display').textContent = window.pendingSaleAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('input-cash-received').value = ""; document.getElementById('cash-change-display').textContent = "R$ 0,00";
+        const btn = document.getElementById('btn-confirm-cash'); btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed');
+        setTimeout(() => document.getElementById('input-cash-received').focus(), 100);
+    };
+    window.closeCashChange = () => document.getElementById('view-cash-change').classList.remove('active');
+
+    window.calcChange = () => {
+        const received = parseFloat(document.getElementById('input-cash-received').value.replace(',', '.')) || 0;
+        const btn = document.getElementById('btn-confirm-cash'); const display = document.getElementById('cash-change-display');
+        if (received >= window.pendingSaleAmount) {
+            display.textContent = (received - window.pendingSaleAmount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            display.textContent = "R$ 0,00"; btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    };
+
+    window.confirmCashPayment = () => { window.closeCashChange(); window.saveExternalSale(window.pendingSaleAmount, 'Dinheiro'); };
+
+    // --- LÓGICA DE MÉTRICAS E RENDEREIZAÇÃO DE VENDAS ---
+    window.toggleFolder = (dateId) => {
+        const folder = document.getElementById(`folder-${dateId}`);
+        const icon = document.getElementById(`icon-${dateId}`);
+        if(folder.classList.contains('hidden')) {
+            folder.classList.remove('hidden'); folder.classList.add('flex');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            folder.classList.add('hidden'); folder.classList.remove('flex');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    };
+
+    window.renderSales = () => {
+        const container = document.getElementById('sales-list');
+        const footerTotal = document.getElementById('sales-total');
+        if (!container) return;
+        
+        const now = new Date(); const currentMonth = now.getMonth(); const currentYear = now.getFullYear();
+        let weekStart = new Date(now); const dayOfWeek = weekStart.getDay(); const daysSinceMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1); 
+        weekStart.setDate(now.getDate() - daysSinceMonday); weekStart.setHours(5, 0, 0, 0);
+        if (now < weekStart) weekStart.setDate(weekStart.getDate() - 7); 
+        
+        const msElapsedWeek = now - weekStart; const daysElapsedWeek = Math.floor(msElapsedWeek / (1000 * 60 * 60 * 24)) + 1; 
+
+        let metrics = { monthTotal: 0, yearTotal: 0, weekTotal: 0, uniqueDaysWithSales: new Set() };
+        
+        // As médias e métricas principais baseiam-se sempre no valor LÍQUIDO recebido pela loja.
+        window.salesData.forEach(sale => {
+            if (sale.status === 'Aprovado' || sale.status === 'pago') {
+                const d = new Date(sale.timestamp);
+                
+                // Tratamento retrocompatível 
+                let taxa = sale.taxAmount || 0;
+                let liquido = sale.netAmount !== undefined ? sale.netAmount : sale.amount;
+                if (sale.isApi && sale.method === 'PIX' && !sale.taxAmount) {
+                    taxa = sale.amount * (parseFloat(window.terminalConfig.taxPixApi) / 100);
+                    liquido = sale.amount - taxa;
+                }
+
+                if (d.getFullYear() === currentYear) {
+                    metrics.yearTotal += liquido;
+                    if (d.getMonth() === currentMonth) {
+                        metrics.monthTotal += liquido;
+                        metrics.uniqueDaysWithSales.add(d.toLocaleDateString('pt-BR')); 
+                    }
+                }
+                if (d >= weekStart && d <= now) metrics.weekTotal += liquido;
+            }
+        });
+
+        const dailyAvg = metrics.uniqueDaysWithSales.size > 0 ? (metrics.monthTotal / metrics.uniqueDaysWithSales.size) : 0;
+        const weeklyAvg = metrics.weekTotal / daysElapsedWeek;
+        const monthlyAvg = metrics.yearTotal / (currentMonth + 1);
+
+        document.getElementById('stat-avg-month').textContent = monthlyAvg.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('stat-avg-week').textContent = weeklyAvg.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('stat-avg-day').textContent = dailyAvg.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('stat-month-total').textContent = metrics.monthTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('stat-month-count').textContent = metrics.uniqueDaysWithSales.size + (metrics.uniqueDaysWithSales.size === 1 ? ' dia' : ' dias');
+
+        const dateStartVal = document.getElementById('filter-date-start').value; 
+        const dateEndVal = document.getElementById('filter-date-end').value; 
+        const methodFilterVal = document.getElementById('filter-method').value;
+
+        let totalLiquidoFiltrado = 0;
+        let totalTaxasFiltrado = 0;
+        const groupedSalesMap = new Map();
+
+        let filteredData = window.salesData.filter(sale => {
+            const isPaid = (sale.status === 'Aprovado' || sale.status === 'pago');
+            if (window.salesFilter === 'paid' && !isPaid) return false;
+            if (window.salesFilter === 'pending' && isPaid) return false;
+            if (methodFilterVal !== 'all' && sale.method !== methodFilterVal) return false;
+            if (dateStartVal || dateEndVal) {
+                const saleDate = new Date(sale.timestamp); const tzOffset = saleDate.getTimezoneOffset() * 60000; 
+                const localISODate = (new Date(saleDate - tzOffset)).toISOString().split('T')[0];
+                if (dateStartVal && localISODate < dateStartVal) return false;
+                if (dateEndVal && localISODate > dateEndVal) return false;
+            }
+            return true;
+        });
+
+        filteredData.forEach(sale => {
+            const isPaid = (sale.status === 'Aprovado' || sale.status === 'pago');
+            let taxa = sale.taxAmount || 0;
+            let liquido = sale.netAmount !== undefined ? sale.netAmount : sale.amount;
+
+            // Retrocompatibilidade PIX Antigo
+            if (sale.isApi && sale.method === 'PIX' && !sale.taxAmount) {
+                taxa = sale.amount * (parseFloat(window.terminalConfig.taxPixApi) / 100);
+                liquido = sale.amount - taxa;
+            }
+
+            if (isPaid) {
+                totalLiquidoFiltrado += liquido;
+                totalTaxasFiltrado += taxa;
+            }
+
+            const d = new Date(sale.timestamp); const dateStr = d.toLocaleDateString('pt-BR');
+            if(!groupedSalesMap.has(dateStr)) groupedSalesMap.set(dateStr, []);
+            groupedSalesMap.get(dateStr).push({ ...sale, _taxaCalc: taxa, _liquidoCalc: liquido });
+        });
+
+        container.innerHTML = "";
+        if (filteredData.length === 0) {
+            container.innerHTML = `<p class="text-zinc-600 text-[10px] text-center mt-10 uppercase tracking-widest font-bold">Nenhuma venda com estes filtros.</p>`;
+        } else {
+            let isFirstFolder = true;
+            groupedSalesMap.forEach((salesInDate, dateStr) => {
+                const safeDateId = dateStr.replace(/\//g, '-');
+                let dayTotalNet = 0; salesInDate.forEach(s => { if(s.status === 'Aprovado' || s.status === 'pago') dayTotalNet += s._liquidoCalc; });
+
+                const folderClass = isFirstFolder ? "flex" : "hidden"; const iconRotate = isFirstFolder ? "rotate(180deg)" : "rotate(0deg)";
+                let folderHtml = `
+                <div class="mb-3 bg-white/5 rounded-2xl border border-white/5 overflow-hidden transition-all shadow-md">
+                    <div class="flex justify-between items-center p-4 cursor-pointer hover:bg-white/10 active:bg-white/5 select-none" onclick="window.toggleFolder('${safeDateId}')">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center text-white/50 border border-white/5"><i data-lucide="calendar" size="14"></i></div>
+                            <span class="font-black text-[13px] text-white">${dateStr}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-0.5">
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm font-bold text-primary">${dayTotalNet.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
+                                <i data-lucide="chevron-down" id="icon-${safeDateId}" size="18" class="text-white/50 transition-transform duration-300" style="transform: ${iconRotate}"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="folder-${safeDateId}" class="${folderClass} flex-col gap-1.5 p-3 bg-black/40 border-t border-white/5">
+                `;
+
+                salesInDate.forEach(sale => {
+                    const isPaid = (sale.status === 'Aprovado' || sale.status === 'pago');
+                    const d = new Date(sale.timestamp); const timeStr = d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    const txIdStr = sale.transactionId ? `(ID: ${sale.transactionId.substring(sale.transactionId.length-6)})` : '';
+                    
+                    const statusBadge = isPaid 
+                        ? `<button onclick="window.toggleSaleStatus('${sale.id}', '${sale.status}')" title="Mudar Status" class="text-[8px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 uppercase font-bold tracking-wider border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition-all active:scale-95">Pago</button>`
+                        : `<button onclick="window.toggleSaleStatus('${sale.id}', '${sale.status}')" title="Mudar Status" class="text-[8px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500 uppercase font-bold tracking-wider border border-orange-500/20 hover:bg-orange-500 hover:text-white transition-all active:scale-95">Pendente</button>`;
+
+                    let tagApi = sale.isApi ? '<span class="text-[8px] text-primary/70 bg-primary/10 px-1 py-0.5 rounded ml-1" title="Cobrança API via Mercado Pago">API</span>' : '';
+                    
+                    // Exibição explícita do Repasse de Taxas para Transparência
+                    let infoTaxa = '';
+                    if (sale._taxaCalc > 0) {
+                        infoTaxa = `
+                            <div class="text-[8.5px] font-medium text-zinc-400 mt-2 flex flex-wrap gap-2">
+                                <span class="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-white/70">Cobrado: ${sale.amount.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}</span>
+                                <span class="bg-red-500/10 border border-red-500/10 px-1.5 py-0.5 rounded text-red-400">Taxa: ${sale._taxaCalc.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}</span>
+                                <span class="bg-emerald-500/10 border border-emerald-500/10 px-1.5 py-0.5 rounded text-emerald-400">Recebido: ${sale._liquidoCalc.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}</span>
+                            </div>
+                        `;
+                    }
+
+                    folderHtml += `
+                        <div class="flex justify-between items-center bg-zinc-900/60 p-3 rounded-xl border border-white/5 group transition-colors hover:border-white/10">
+                            <div class="flex-1">
+                                <p class="text-[9px] text-zinc-500 uppercase tracking-widest mb-1.5">${timeStr} ${txIdStr}</p>
+                                <div class="flex items-center gap-2"><p class="text-[11px] font-bold text-white">${sale.method || 'PIX'} ${tagApi}</p>${statusBadge}</div>
+                                ${infoTaxa}
+                            </div>
+                            <div class="flex flex-col items-end justify-center gap-1">
+                                <div class="flex items-center gap-3">
+                                    <span class="font-black text-sm ${isPaid ? 'text-primary' : 'text-zinc-500'}">${sale._liquidoCalc.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
+                                    <button onclick="window.deleteSale('${sale.id}')" class="w-8 h-8 flex items-center justify-center rounded-full bg-red-500/5 text-red-500 hover:bg-red-500 hover:text-white transition-colors border border-red-500/10"><i data-lucide="trash-2" size="14"></i></button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                folderHtml += `</div></div>`; container.innerHTML += folderHtml; isFirstFolder = false;
+            });
+        }
+        
+        // Rodapé de Total Líquido (Somente o Recebido) e Taxas
+        footerTotal.textContent = totalLiquidoFiltrado.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        const taxesTotalEl = document.getElementById('sales-total-taxes');
+        if (taxesTotalEl) taxesTotalEl.textContent = totalTaxasFiltrado.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        
+        let legenda = "Total Recebido Limpo (Líquido)";
+        if (dateStartVal || dateEndVal) {
+            if (dateStartVal && dateEndVal && dateStartVal === dateEndVal) { const [y, m, d] = dateStartVal.split('-'); legenda += ` EM ${d}/${m}`; }
+            else { legenda += ` NO PERÍODO`; }
+        }
+        if (methodFilterVal !== 'all') { legenda += ` - ${methodFilterVal.toUpperCase()}`; }
+        document.getElementById('sales-footer-legend').textContent = legenda;
+
+        lucide.createIcons();
+    };
+
+    window.filterSales = (filter) => {
+        window.salesFilter = filter;
+        ['btn-filter-all', 'btn-filter-paid', 'btn-filter-pending'].forEach(id => {
+            const btn = document.getElementById(id);
+            if(btn) btn.className = "flex-1 py-2 rounded-lg bg-black/20 text-[10px] uppercase font-bold text-white/50 border border-white/5 transition-all";
+        });
+        const activeBtn = document.getElementById(`btn-filter-${filter}`);
+        if(activeBtn) activeBtn.className = "flex-1 py-2 rounded-lg bg-primary text-[10px] uppercase font-bold text-black border border-primary transition-all";
+        window.renderSales();
+    };
+
+    window.toggleSaleStatus = (saleId, currentStatus) => {
+        const newStatus = (currentStatus === 'Aprovado' || currentStatus === 'pago') ? 'Pendente' : 'Aprovado';
+        window.showConfirmModal("Mudar Status?", `Pretende alterar o estado desta venda para "${newStatus.toUpperCase()}"?`, () => {
+            if (window.db && window.auth && window.auth.currentUser) { update(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${saleId}`), { status: newStatus }).then(() => { window.showMessage("Status Atualizado!"); }); }
+        }, "help-circle", "text-blue-500", "bg-blue-500/10");
+    };
+
+    window.exportToCSV = () => {
+        if (!window.salesData || window.salesData.length === 0) { window.showMessage("Não há dados para exportar", false); return; }
+        const headers = ["Data", "Hora", "Transacao ID", "Metodo", "Status", "Valor Cobrado (Bruto)", "Taxa", "Valor Recebido (Liquido)"];
+        const rows = window.salesData.map(sale => {
+            const d = new Date(sale.timestamp);
+            let taxa = sale.taxAmount || 0;
+            let liquido = sale.netAmount !== undefined ? sale.netAmount : sale.amount;
+            if (sale.isApi && sale.method === 'PIX' && !sale.taxAmount) { taxa = sale.amount * (parseFloat(window.terminalConfig.taxPixApi) / 100); liquido = sale.amount - taxa; }
+            return `"${d.toLocaleDateString('pt-BR')}","${d.toLocaleTimeString('pt-BR')}","${sale.transactionId || sale.id}","${sale.method || 'PIX'}","${sale.status}","${sale.amount.toFixed(2).replace('.', ',')}","${taxa.toFixed(2).replace('.', ',')}","${liquido.toFixed(2).replace('.', ',')}"`;
+        });
+        const encodedUri = encodeURI("data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.join("\n"));
+        const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", `Relatorio_Vendas_PDV_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link); window.showMessage("Exportação Concluída!");
+    };
+
+    window.deleteSale = (saleId) => {
+        window.showConfirmModal("Apagar Venda?", "Esta ação não pode ser desfeita. O registo será removido permanentemente.", () => {
+            if (window.db && window.auth && window.auth.currentUser) { remove(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${saleId}`)).then(() => window.showMessage("Venda apagada com sucesso!")); }
+        });
+    };
+
+    window.clearAllSales = () => {
+        window.showConfirmModal("Zona de Perigo", "Vai apagar TODAS as vendas do histórico permanentemente.", () => {
+            if (window.db && window.auth && window.auth.currentUser) { remove(ref(window.db, `artifacts/${safeAppId}/public/data/sales`)).then(() => { window.showMessage("Histórico limpo!"); window.salesData = []; window.renderSales(); }); }
+        });
+    };
+
+    window.confirmAction = null;
+    window.showConfirmModal = (title, msg, onConfirm, icon = "alert-triangle", colorClass = "text-red-500", bgClass = "bg-red-500/10") => {
+        document.getElementById('confirm-title').textContent = title; document.getElementById('confirm-msg').textContent = msg;
+        window.confirmAction = onConfirm;
+        const iconContainer = document.getElementById('confirm-icon');
+        iconContainer.className = `w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 ${colorClass} ${bgClass}`;
+        iconContainer.innerHTML = `<i data-lucide="${icon}" size="28" stroke-width="2"></i>`;
+        const confirmBtn = document.getElementById('btn-execute-confirm');
+        confirmBtn.className = `flex-1 py-4 rounded-2xl ${bgClass} ${colorClass} text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-transform border border-current hover:text-white`;
+
+        const modal = document.getElementById('view-confirm'); const box = document.getElementById('confirm-box');
+        lucide.createIcons(); modal.style.display = 'flex';
+        setTimeout(() => { box.classList.remove('scale-95', 'opacity-0'); box.classList.add('scale-100', 'opacity-100'); }, 10);
+    };
+
+    window.closeConfirm = () => {
+        const modal = document.getElementById('view-confirm'); const box = document.getElementById('confirm-box');
+        box.classList.remove('scale-100', 'opacity-100'); box.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => { modal.style.display = 'none'; window.confirmAction = null; }, 200);
+    };
+    window.executeConfirm = () => { if(window.confirmAction) window.confirmAction(); window.closeConfirm(); };
+
+    window.processSale = async (amount) => {
+        const txId = "TX_" + Date.now(); window.pendingSaleAmount = amount;
+        
+        let taxRate = parseFloat(window.terminalConfig.taxPixApi);
+        let taxAmount = amount * (taxRate / 100);
+        let netAmount = amount - taxAmount;
+
+        const saleObj = { amount: amount, netAmount: netAmount, taxAmount: taxAmount, taxRate: taxRate, timestamp: new Date().toISOString(), method: 'PIX', status: 'Pendente', transactionId: txId, isApi: true };
+        if (window.db && window.auth && window.auth.currentUser && navigator.onLine) set(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${txId}`), saleObj).catch(()=>{});
+        window.lastGeneratedSale = saleObj;
+
+        document.getElementById('view-pix').classList.add('active');
+        document.getElementById('pix-amount-label').textContent = amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const qrBox = document.getElementById('pix-qr-box'); const statusText = document.getElementById('pix-status-text');
+        qrBox.innerHTML = '<div class="font-bold text-sm animate-pulse flex flex-col items-center gap-2 mt-8"><svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>A ligar ao Banco...</div>';
+        statusText.textContent = "A LIGAR AO BANCO..."; statusText.className = "text-primary text-[10px] uppercase tracking-[0.2em] mb-1 font-bold";
+
+        const token = window.terminalConfig.useTestMode ? window.terminalConfig.mpApiKeyTest : window.terminalConfig.mpApiKeyProd;
+        if (token && token.trim() !== "") {
+            try {
+                // CORREÇÃO DA API: Mercado Pago exige 'first_name', 'last_name' e 'identification' (ex: CPF) validos
+                // Se enviar apenas o e-mail ele barra a requisição e retorna erro 400 em contas de Produção!
+                // IMPORTANTE: Para evitar CORS, use um proxy/backend ou habilite CORS na sua API
+                
+                // Define a URL base (proxy local ou API direta)
+                const baseUrl = window.terminalConfig.useProxyServer 
+                    ? window.terminalConfig.proxyUrl 
+                    : "https://api.mercadopago.com";
+                
+                const apiPath = window.terminalConfig.useProxyServer 
+                    ? "/api/payments" 
+                    : "/v1/payments";
+                
+                const response = await fetch(`${baseUrl}${apiPath}`, {
+                    method: "POST", 
+                    mode: "cors",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "Authorization": `Bearer ${token.trim()}`, 
+                        "X-Idempotency-Key": window.generateSafeId()
+                    },
+                    body: JSON.stringify({ 
+                        transaction_amount: Number(amount.toFixed(2)), 
+                        description: "Venda PDV", 
+                        payment_method_id: "pix", 
+                        payer: { 
+                            email: "pdv@cliente.com",
+                            first_name: "Cliente",
+                            last_name: "Balcão",
+                            identification: {
+                                type: "CPF",
+                                number: "19119119100" // CPF genérico usado para gerar cobranças sem identificação específica
+                            }
+                        } 
+                    })
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error("ERRO DA API MERCADO PAGO:", data); // Adicionado LOG para verificar facilmente erros de Token ou Conta
+                    throw new Error(data.message || "Erro na API");
+                }
+                
+                if (data.id && data.point_of_interaction?.transaction_data?.qr_code) {
+                    window.lastPixString = data.point_of_interaction.transaction_data.qr_code;
+                    qrBox.innerHTML = ""; new QRCode(qrBox, { text: window.lastPixString, width: 500, height: 500, colorDark: "#000000", colorLight: "#ffffff" });
+                    statusText.textContent = window.terminalConfig.useTestMode ? "MODO TESTE - AGUARDANDO..." : "AGUARDANDO PAGAMENTO...";
+                    if (window.paymentCheckInterval) clearInterval(window.paymentCheckInterval);
+                    window.paymentCheckInterval = setInterval(() => window.checkPaymentStatus(data.id, token.trim(), amount, txId), 5000);
+                    if (window.terminalConfig.useTestMode || token.trim().startsWith("TEST-")) document.getElementById('btn-test-payment').classList.remove('hidden');
+                    return; 
+                } else throw new Error("O banco não devolveu o QR Code.");
+            } catch (error) { 
+                console.error("Erro ao gerar PIX:", error); 
+                // Detectar erro CORS
+                if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('CORS') || error.message.includes('NetworkError'))) {
+                    qrBox.innerHTML = `<div class="text-yellow-500 font-bold p-4 text-center border-2 border-yellow-500/20 rounded-[1.5rem] bg-yellow-500/10 flex flex-col justify-center items-center h-full"><span class="text-[12px] uppercase tracking-widest mb-2">ERRO CORS</span><span class="text-[10px] opacity-70 font-normal leading-relaxed mb-2">API bloqueada pelo navegador. Use um backend/proxy.</span><span class="text-[9px] opacity-50 font-normal">Alternando para PIX Nativo...</span></div>`;
+                    statusText.textContent = "ERRO CORS - ALTERNANDO"; 
+                    statusText.className = "text-yellow-500 text-[10px] uppercase tracking-[0.2em] mb-1 font-bold";
+                    setTimeout(() => window.fallbackStaticPix(amount, txId), 2000);
+                    return;
+                }
+                console.warn("Mercado Pago indisponível. Plano B.", error); 
+            }
+        } 
+        window.fallbackStaticPix(amount, txId); 
+    };
+
+    window.fallbackStaticPix = (amount, txId) => {
+        const chavePix = window.terminalConfig.pixKey ? window.terminalConfig.pixKey.trim() : "";
+        const qrBox = document.getElementById('pix-qr-box'); const statusText = document.getElementById('pix-status-text');
+        if (!chavePix) {
+             qrBox.innerHTML = `<div class="text-red-500 font-bold p-4 text-center border-2 border-red-500/20 rounded-[1.5rem] bg-red-500/10 flex flex-col justify-center items-center h-full"><span class="text-[12px] uppercase tracking-widest mb-1">ERRO DE LIGAÇÃO</span><span class="text-[10px] opacity-70 font-normal leading-relaxed">A API falhou e não tem uma Chave PIX de Reserva configurada.</span></div>`;
+            statusText.textContent = "FALHA"; statusText.className = "text-red-500 text-[10px] uppercase tracking-[0.2em] mb-1 font-bold";
+            if (window.terminalConfig.useTestMode) document.getElementById('btn-test-payment').classList.remove('hidden');
+            return;
+        }
+        const valorFormatado = amount.toFixed(2); const tamValor = valorFormatado.length.toString().padStart(2, '0'); const tamChave = chavePix.length.toString().padStart(2, '0');
+        const payload = `00020101021126${(22 + chavePix.length).toString().padStart(2,'0')}0014BR.GOV.BCB.PIX01${tamChave}${chavePix}52040000530398654${tamValor}${valorFormatado}5802BR5903PDV6009SAO PAULO62070503***6304`;
+        const finalPayload = payload + crc16(payload);
+        window.lastPixString = finalPayload; qrBox.innerHTML = ""; new QRCode(qrBox, { text: finalPayload, width: 500, height: 500, colorDark: "#000000", colorLight: "#ffffff" });
+        statusText.textContent = "PIX NATIVO (PLANO B)"; statusText.className = "text-[#888] text-[9px] uppercase tracking-[0.15em] mb-1 font-bold";
+        if (window.terminalConfig.useTestMode || chavePix.toLowerCase().includes('teste')) document.getElementById('btn-test-payment').classList.remove('hidden');
+        if (window.db && window.auth && window.auth.currentUser) {
+            if (window.unsubscribePayment) window.unsubscribePayment();
+            const txRef = ref(window.db, `artifacts/${safeAppId}/public/data/transactions/${txId}`); set(txRef, { status: 'pendente', amount: amount, timestamp: new Date().toISOString() });
+            window.unsubscribePayment = onValue(txRef, (snapshot) => { const data = snapshot.val(); if (data && (data.status === 'pago' || data.status === 'approved')) { window.triggerSuccessPayment(amount, txId, false, window.lastGeneratedSale); if (window.unsubscribePayment) { window.unsubscribePayment(); window.unsubscribePayment = null; } } });
+        }
+    };
+
+    window.checkPaymentStatus = async (paymentId, token, amount, txId) => {
+        try {
+            const baseUrl = window.terminalConfig.useProxyServer 
+                ? window.terminalConfig.proxyUrl 
+                : "https://api.mercadopago.com";
+            
+            const apiPath = window.terminalConfig.useProxyServer 
+                ? `/api/payments/${paymentId}` 
+                : `/v1/payments/${paymentId}`;
+            
+            const res = await fetch(`${baseUrl}${apiPath}`, { 
+                mode: "cors",
+                headers: { 'Authorization': `Bearer ${token}` } 
+            }); 
+            const data = await res.json(); if (data.status === 'approved') { if (window.paymentCheckInterval) clearInterval(window.paymentCheckInterval); window.triggerSuccessPayment(amount, txId, true); } 
+        } catch(e) { console.error("Erro no polling de status:", e); } 
+    };
+    window.simulateTestPayment = () => { if (window.mpPollInterval) clearInterval(window.mpPollInterval); if (window.paymentCheckInterval) clearInterval(window.paymentCheckInterval); window.triggerSuccessPayment(window.pendingSaleAmount || 0, "TEST_" + Date.now(), true); };
+
+    window.triggerSuccessPayment = (amount, txId, isApi = false, existingSaleObj = null) => {
+        // Garantindo os cálculos corretos baseados em ser API ou PIX Manual (Plano B)
+        let taxRate = isApi ? parseFloat(window.terminalConfig.taxPixApi) : 0;
+        let taxAmount = amount * (taxRate / 100);
+        let netAmount = amount - taxAmount;
+
+        const updateObj = existingSaleObj || { 
+            amount: amount, 
+            netAmount: netAmount, 
+            taxAmount: taxAmount, 
+            taxRate: taxRate,
+            timestamp: new Date().toISOString(), 
+            method: window.lastGeneratedSale?.method || 'PIX', 
+            status: 'Aprovado', 
+            transactionId: txId, 
+            isApi: isApi 
+        };
+        
+        // Assegurar atualizar o status para aprovado caso seja reciclando o obj existente (Cartões usam isso)
+        updateObj.status = 'Aprovado';
+        
+        window.lastGeneratedSale = updateObj;
+        if (window.db && window.auth && window.auth.currentUser && navigator.onLine) update(ref(window.db, `artifacts/${safeAppId}/public/data/sales/${txId}`), updateObj).catch(()=>{});
+        window.playSuccessProcedural(); document.getElementById('view-pix').classList.remove('active');
+        document.getElementById('success-message-display').textContent = window.terminalConfig.successMessage || "Obrigado pela preferência!";
+        document.getElementById('view-success').classList.add('active'); lucide.createIcons(); confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#017851', '#ffffff'] });
+        document.getElementById('btn-show-receipt').onclick = () => window.showThermalReceipt(updateObj);
+    };
+
+    window.showThermalReceipt = (sale) => {
+        document.getElementById('view-success').classList.remove('active'); document.getElementById('view-receipt').classList.add('active');
+        document.getElementById('receipt-store-name').textContent = window.terminalConfig.terminalName || "TERMINAL PDV";
+        const d = new Date(sale.timestamp);
+        document.getElementById('rc-date').textContent = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('rc-txid').textContent = sale.transactionId ? sale.transactionId.substring(sale.transactionId.length - 8).toUpperCase() : 'N/A';
+        document.getElementById('rc-method').textContent = sale.method || 'PIX'; document.getElementById('rc-amount').textContent = sale.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('rc-custom-msg').textContent = window.terminalConfig.successMessage || "Obrigado pela preferência!"; lucide.createIcons();
+    };
+
+    window.sendReceiptWhatsApp = () => {
+        const sale = window.lastGeneratedSale; if (!sale) return;
+        const d = new Date(sale.timestamp); const txId = sale.transactionId ? sale.transactionId.substring(sale.transactionId.length - 8).toUpperCase() : 'N/A';
+        const text = `🧾 *COMPROVANTE DE VENDA - ${window.terminalConfig.terminalName || "TERMINAL PDV"}*\n\n📅 *Data:* ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}\n💵 *Valor Total:* ${sale.amount.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}\n💳 *Método:* ${sale.method || 'PIX'}\n🔑 *ID Transação:* ${txId}\n\n*Status:* Aprovado com Sucesso! ✅\n\n_${window.terminalConfig.successMessage || 'Obrigado pela preferência!'}_`;
+        window.open(`https://api.whatsapp.com/send?phone=${(window.terminalConfig.whatsapp || '').replace(/\D/g, '')}&text=${encodeURIComponent(text)}`, '_blank');
+    };
+    window.printReceipt = () => window.print();
+
+    // Restante das Funções de Configurações...
+    window.showWifi = () => { document.getElementById('view-wifi').classList.add('active'); document.getElementById('wifi-ssid-val').textContent = window.terminalConfig.wifiSSID || "NÃO CONFIGURADO"; document.getElementById('wifi-pass-val').textContent = window.terminalConfig.wifiPass || "---"; document.getElementById('wifi-qr-box').innerHTML = ""; new QRCode(document.getElementById('wifi-qr-box'), { text: `WIFI:T:WPA;S:${window.terminalConfig.wifiSSID};P:${window.terminalConfig.wifiPass};;`, width: 500, height: 500, colorDark: "#000000", colorLight: "#ffffff" }); };
+    window.showSupport = () => { document.getElementById('view-support').classList.add('active'); document.getElementById('whatsapp-qr').innerHTML = ""; new QRCode(document.getElementById('whatsapp-qr'), { text: `https://wa.me/${window.terminalConfig.whatsapp}`, width: 500, height: 500, colorDark: "#000000", colorLight: "#ffffff" }); };
+    window.showSalesHistory = () => { document.getElementById('view-sales').classList.add('active'); window.renderSales(); };
+    window.toggleAcc = (id) => { const el = document.getElementById(id); const isHidden = el.classList.contains('hidden'); document.querySelectorAll('[id^="acc-"]').forEach(acc => acc.classList.add('hidden')); if (isHidden) el.classList.remove('hidden'); };
+    window.updateUIFromConfig = () => { document.getElementById('terminal-name-header').textContent = window.terminalConfig.terminalName || "MOBILIDADE URBANA"; window.applyThemeSettings(); window.updateTaxLabels(); };
+    window.requestSettingsAccess = () => { const pin = window.terminalConfig.adminPin || "0000"; if (pin === "" || pin === "0000") { window.currentDigits = ""; window.updateDisplay(); window.toggleSettings(); } else { const inputAuth = document.getElementById('input-admin-pin-auth'); if (inputAuth) inputAuth.value = ''; const pinModal = document.getElementById('view-pin'); if (pinModal) pinModal.classList.add('active'); else window.toggleSettings(); } };
+    window.closePinModal = () => { const pinModal = document.getElementById('view-pin'); if (pinModal) pinModal.classList.remove('active'); window.currentDigits = ""; window.updateDisplay(); };
+    window.verifyPin = () => { const input = document.getElementById('input-admin-pin-auth') ? document.getElementById('input-admin-pin-auth').value : ""; if (input === window.terminalConfig.adminPin) { window.closePinModal(); window.toggleSettings(); if (document.getElementById('input-admin-pin-auth')) document.getElementById('input-admin-pin-auth').value = ''; } else { window.showMessage("PIN Incorreto", false); if (document.getElementById('input-admin-pin-auth')) document.getElementById('input-admin-pin-auth').value = ''; } };
+    window.toggleSettings = () => {
+        const view = document.getElementById('view-settings'); if (!view) return;
+        if (view.classList.contains('active')) { window.resetTerminal(); } else {
+            const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; }; const setCheck = (id, checked) => { const el = document.getElementById(id); if(el) el.checked = checked; };
+            setVal('input-terminal-name', window.terminalConfig.terminalName || ""); setVal('input-api-key-prod', window.terminalConfig.mpApiKeyProd || window.terminalConfig.mpApiKey || ""); setVal('input-api-key-test', window.terminalConfig.mpApiKeyTest || ""); setCheck('input-use-test-mode', window.terminalConfig.useTestMode || false); setVal('input-wifi-ssid', window.terminalConfig.wifiSSID || ""); setVal('input-wifi-pass', window.terminalConfig.wifiPass || ""); setVal('input-pix-key', window.terminalConfig.pixKey || ""); setCheck('input-use-virtual-kb', window.terminalConfig.useVirtualKb !== false); setCheck('input-enable-beep', window.terminalConfig.enableBeep !== false); setCheck('input-enable-success-sound', window.terminalConfig.enableSuccessSound !== false); setVal('input-whatsapp', window.terminalConfig.whatsapp || ""); setVal('input-success-msg', window.terminalConfig.successMessage || "Obrigado pela preferência!"); setVal('input-screensaver-delay', window.terminalConfig.screensaverDelay !== undefined ? window.terminalConfig.screensaverDelay : "30"); setVal('input-admin-pin', window.terminalConfig.adminPin === "0000" ? "" : window.terminalConfig.adminPin); setVal('cfg-bg-color', window.terminalConfig.bgColor || "#232935"); setVal('cfg-text-color', window.terminalConfig.textColor || "#ffffff"); setVal('cfg-primary-color', window.terminalConfig.primaryColor || "#22c55e"); setVal('cfg-keypad-bg', window.terminalConfig.keypadBg || "#2d3545"); setVal('cfg-keypad-text', window.terminalConfig.keypadText || "#ffffff"); setVal('cfg-btn-bg', window.terminalConfig.btnBg || "#7c9cbd"); setVal('cfg-btn-text', window.terminalConfig.btnText || "#1e293b"); setVal('input-preset-theme', 'custom');
+            setVal('input-tax-pix', window.terminalConfig.taxPixApi !== undefined ? window.terminalConfig.taxPixApi : 0.99);
+            setVal('input-tax-credit', window.terminalConfig.taxCredit !== undefined ? window.terminalConfig.taxCredit : 5.00);
+            setVal('input-tax-debit', window.terminalConfig.taxDebit !== undefined ? window.terminalConfig.taxDebit : 2.00);
+            view.classList.add('active');
+        }
+    };
+    window.applyPresetTheme = () => { const selected = document.getElementById('input-preset-theme').value; if (selected === 'custom' || !themePresets[selected]) return; const theme = themePresets[selected]; document.getElementById('cfg-bg-color').value = theme.bg; document.getElementById('cfg-text-color').value = theme.text; document.getElementById('cfg-primary-color').value = theme.primary; document.getElementById('cfg-keypad-bg').value = theme.keyBg; document.getElementById('cfg-keypad-text').value = theme.keyText; document.getElementById('cfg-btn-bg').value = theme.btnBg; document.getElementById('cfg-btn-text').value = theme.btnText; window.previewTheme(); };
+    window.previewTheme = () => { document.documentElement.style.setProperty('--bg-color', document.getElementById('cfg-bg-color').value); document.documentElement.style.setProperty('--text-color', document.getElementById('cfg-text-color').value); document.documentElement.style.setProperty('--primary-color', document.getElementById('cfg-primary-color').value); document.documentElement.style.setProperty('--keypad-bg', document.getElementById('cfg-keypad-bg').value); document.documentElement.style.setProperty('--keypad-text', document.getElementById('cfg-keypad-text').value); document.documentElement.style.setProperty('--btn-bg', document.getElementById('cfg-btn-bg').value); document.documentElement.style.setProperty('--btn-text', document.getElementById('cfg-btn-text').value); document.getElementById('input-preset-theme').value = 'custom'; };
+    window.applyThemeSettings = () => { document.documentElement.style.setProperty('--bg-color', window.terminalConfig.bgColor || '#232935'); document.documentElement.style.setProperty('--text-color', window.terminalConfig.textColor || '#ffffff'); document.documentElement.style.setProperty('--primary-color', window.terminalConfig.primaryColor || '#22c55e'); document.documentElement.style.setProperty('--keypad-bg', window.terminalConfig.keypadBg || '#2d3545'); document.documentElement.style.setProperty('--keypad-text', window.terminalConfig.keypadText || '#ffffff'); document.documentElement.style.setProperty('--btn-bg', window.terminalConfig.btnBg || '#7c9cbd'); document.documentElement.style.setProperty('--btn-text', window.terminalConfig.btnText || '#1e293b'); const keypad = document.getElementById('keypad-ui'); if (keypad) keypad.style.display = (window.terminalConfig.useVirtualKb !== false) ? 'block' : 'none'; window.updateNetworkUI(); };
+    window.saveSettings = async (isInitial = false) => {
+        const btn = document.getElementById('btn-save'); if(btn) { btn.disabled = true; btn.textContent = "A AGUARDAR..."; }
+        const getVal = (id) => document.getElementById(id) ? document.getElementById(id).value : undefined; const getCheck = (id) => document.getElementById(id) ? document.getElementById(id).checked : undefined;
+        let pinValue = getVal('input-admin-pin'); if (pinValue === undefined) pinValue = window.terminalConfig.adminPin; else if (pinValue.trim() === "") pinValue = "0000";
+        const newConfig = isInitial ? window.terminalConfig : { 
+            terminalName: getVal('input-terminal-name') ?? window.terminalConfig.terminalName, mpApiKeyProd: getVal('input-api-key-prod') ?? window.terminalConfig.mpApiKeyProd, mpApiKeyTest: getVal('input-api-key-test') ?? window.terminalConfig.mpApiKeyTest, useTestMode: getCheck('input-use-test-mode') ?? window.terminalConfig.useTestMode, wifiSSID: getVal('input-wifi-ssid') ?? window.terminalConfig.wifiSSID, wifiPass: getVal('input-wifi-pass') ?? window.terminalConfig.wifiPass, pixKey: getVal('input-pix-key') ?? window.terminalConfig.pixKey, useVirtualKb: getCheck('input-use-virtual-kb') ?? window.terminalConfig.useVirtualKb, enableBeep: getCheck('input-enable-beep') ?? window.terminalConfig.enableBeep, enableSuccessSound: getCheck('input-enable-success-sound') ?? window.terminalConfig.enableSuccessSound, adminPin: pinValue, successMessage: getVal('input-success-msg') ?? window.terminalConfig.successMessage, whatsapp: getVal('input-whatsapp') ?? window.terminalConfig.whatsapp, screensaverDelay: getVal('input-screensaver-delay') !== undefined ? parseInt(getVal('input-screensaver-delay')) : window.terminalConfig.screensaverDelay, bgColor: getVal('cfg-bg-color') ?? window.terminalConfig.bgColor, textColor: getVal('cfg-text-color') ?? window.terminalConfig.textColor, primaryColor: getVal('cfg-primary-color') ?? window.terminalConfig.primaryColor, keypadBg: getVal('cfg-keypad-bg') ?? window.terminalConfig.keypadBg, keypadText: getVal('cfg-keypad-text') ?? window.terminalConfig.keypadText, btnBg: getVal('cfg-btn-bg') ?? window.terminalConfig.btnBg, btnText: getVal('cfg-btn-text') ?? window.terminalConfig.btnText,
+            taxPixApi: getVal('input-tax-pix') !== undefined ? parseFloat(getVal('input-tax-pix')) : window.terminalConfig.taxPixApi,
+            taxCredit: getVal('input-tax-credit') !== undefined ? parseFloat(getVal('input-tax-credit')) : window.terminalConfig.taxCredit,
+            taxDebit: getVal('input-tax-debit') !== undefined ? parseFloat(getVal('input-tax-debit')) : window.terminalConfig.taxDebit
+        };
+        if (window.db && window.auth && window.auth.currentUser) { try { await set(ref(window.db, `artifacts/${safeAppId}/public/data/terminal_settings/main`), newConfig); if (!isInitial) window.showMessage("Atualizado na Nuvem", true); } catch (e) { window.showMessage("Erro de Permissão", false); } } else { window.terminalConfig = newConfig; window.updateUIFromConfig(); window.updateTaxLabels(); }
+        if(btn) { btn.disabled = false; btn.textContent = "SALVAR ALTERAÇÕES"; } if (!isInitial) window.resetTerminal();
+    };
+    window.showMessage = (text, success = true) => { const box = document.getElementById('message-box'); document.getElementById('message-text').textContent = text; document.getElementById('msg-dot').className = success ? "w-1.5 h-1.5 bg-white rounded-full" : "w-1.5 h-1.5 bg-red-500 rounded-full"; box.classList.add('show'); setTimeout(() => box.classList.remove('show'), 2500); };
+    window.copyPix = () => { const e = document.createElement('textarea'); e.value = window.lastPixString; document.body.appendChild(e); e.select(); document.execCommand('copy'); document.body.removeChild(e); window.showMessage("PIX COPIADO!"); };
+    window.updateDisplay = () => {
+        const displayVal = document.getElementById('display-value'); if (!displayVal) return;
+        displayVal.classList.remove('waiting-pulse'); displayVal.classList.add('scale-[1.03]'); setTimeout(() => displayVal.classList.remove('scale-[1.03]'), 80);
+        displayVal.textContent = !window.currentDigits ? "0,00" : (parseInt(window.currentDigits) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    };
+    window.testMPConnection = async () => {
+        const token = document.getElementById('input-use-test-mode').checked ? document.getElementById('input-api-key-test').value : document.getElementById('input-api-key-prod').value;
+        const btn = document.getElementById('btn-test-mp'); const originalText = "Testar Token";
+        if (!token) { window.showMessage("Insira o Access Token", false); return; }
+        btn.textContent = "A TESTAR..."; btn.className = "w-full py-3 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border text-white border-white/5 mt-2";
+        try { 
+            const baseUrl = window.terminalConfig.useProxyServer 
+                ? window.terminalConfig.proxyUrl 
+                : "https://api.mercadopago.com";
+            
+            const apiPath = window.terminalConfig.useProxyServer 
+                ? "/api/payment_methods" 
+                : "/v1/payment_methods";
+            
+            const res = await fetch(`${baseUrl}${apiPath}`, { 
+                mode: "cors",
+                headers: { "Authorization": `Bearer ${token.trim()}` } 
+            }); 
+            if(res.ok) { 
+                window.showMessage("Ligação Bem Sucedida!"); btn.textContent = "TOKEN VÁLIDO"; btn.className = "w-full py-3 bg-green-500/10 rounded-xl text-[10px] text-green-500 font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-green-500/50 mt-2"; 
+            } else { 
+                const errorData = await res.json();
+                console.error("Erro MP Teste:", errorData);
+                window.showMessage("Token Inválido!", false); btn.textContent = "TOKEN INVÁLIDO"; btn.className = "w-full py-3 bg-red-500/10 rounded-xl text-[10px] text-red-500 font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-red-500/50 mt-2"; 
+            } 
+        } catch (e) { 
+            console.error("Erro requisição:", e);
+            window.showMessage("Erro ao contactar API", false); btn.textContent = "ERRO NA API"; btn.className = "w-full py-3 bg-red-500/10 rounded-xl text-[10px] text-red-500 font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-red-500/50 mt-2"; 
+        }
+        setTimeout(() => { btn.textContent = originalText; btn.className = "w-full py-3 bg-white/10 rounded-xl text-[10px] text-white font-bold uppercase tracking-[0.1em] active:scale-95 transition-all border border-white/5 mt-2"; }, 3000);
+    };
+
+    // EVENT LISTENER DE TECLADO
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+            if (e.target.id === 'input-admin-pin-auth' && e.key === 'Enter') { window.verifyPin(); return; }
+            if (e.target.id === 'input-cash-received' && e.key === 'Enter') { 
+                const btn = document.getElementById('btn-confirm-cash'); 
+                if (btn && !btn.disabled) window.confirmCashPayment(); 
+                return; 
+            }
+            if (e.key !== 'Escape') return; 
+        }
+
+        const isPinModalOpen = document.getElementById('view-pin').classList.contains('active'); if (isPinModalOpen) { if (e.key === 'Escape') window.closePinModal(); return; }
+        const isMenuOpen = document.getElementById('view-settings').classList.contains('active'); if (isMenuOpen) { if (e.key === 'Escape') window.resetTerminal(); return; }
+        const isPaymentMethodsOpen = document.getElementById('view-payment-methods').classList.contains('active');
+        if (isPaymentMethodsOpen) {
+            if (e.key === '1' || e.key.toLowerCase() === 'p') window.selectPaymentMethod('PIX');
+            else if (e.key === '2' || e.key.toLowerCase() === 'c') window.selectPaymentMethod('Cartão de Crédito');
+            else if (e.key === '3' || e.key.toLowerCase() === 'd') window.selectPaymentMethod('Cartão de Débito');
+            else if (e.key === '4' || e.key.toLowerCase() === 'm') window.selectPaymentMethod('Dinheiro');
+            else if (e.key === 'Escape') window.closePaymentMethods();
+            return;
+        }
+
+        const isCardTaxOpen = document.getElementById('view-card-tax').classList.contains('active');
+        if (isCardTaxOpen) {
+            if (e.key === 'Escape') window.closeCardTax();
+            else if (e.key === 'Enter') window.confirmCardPayment();
+            return;
+        }
+
+        const isCashChangeOpen = document.getElementById('view-cash-change').classList.contains('active');
+        if (isCashChangeOpen) {
+            if (e.key === 'Escape') window.closeCashChange();
+            else if (e.key === 'Enter' && e.target.tagName !== 'INPUT') { const btn = document.getElementById('btn-confirm-cash'); if (btn && !btn.disabled) window.confirmCashPayment(); }
+            return;
+        }
+
+        const isConfirmOpen = document.getElementById('view-confirm').style.display === 'flex';
+        if (isConfirmOpen) { if (e.key === 'Escape') window.closeConfirm(); else if (e.key === 'Enter') window.executeConfirm(); return; }
+
+        const isPixOpen = document.getElementById('view-pix').classList.contains('active');
+        const isWifiOpen = document.getElementById('view-wifi').classList.contains('active');
+        const isSupportOpen = document.getElementById('view-support').classList.contains('active');
+        const isSalesOpen = document.getElementById('view-sales').classList.contains('active');
+        const isSuccessOpen = document.getElementById('view-success').classList.contains('active');
+        const isReceiptOpen = document.getElementById('view-receipt').classList.contains('active');
+
+        if (e.key === 'Enter') {
+            if (isPixOpen || isSuccessOpen || isReceiptOpen) return;
+            else if (isWifiOpen || isSupportOpen || isSalesOpen) window.resetTerminal(); 
+            else window.handleAction();
+        } else if (e.key >= '0' && e.key <= '9') {
+            window.pressKey(e.key);
+        } else if (e.key === 'Backspace') {
+            window.pressKey('back');
+        } else if (e.key === 'Escape') {
+            window.resetTerminal();
+        } else if (e.key === '*' || e.key === 'x') {
+            window.pressKey('*');
+        }
+    });
+
+    window.addEventListener('load', () => {
+        lucide.createIcons(); window.initFirebase(); window.startInactivityTimer();
+        setInterval(() => { const d = new Date(); const clockEl = document.getElementById('clock'); if(clockEl) clockEl.textContent = d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0') + ":" + d.getSeconds().toString().padStart(2, '0'); }, 1000);
+        window.updateDisplay();
+    });
+</script>
+</body>
+</html>
