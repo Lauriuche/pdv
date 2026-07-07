@@ -68,7 +68,7 @@
               line-height: 1; 
               letter-spacing: -0.03em; 
               text-align: center; 
-              max-width: 100vw; 
+              max-width: 90vw; 
               color: var(--text-color, #ffffff) !important; 
               will-change: opacity, transform; 
           }
@@ -1179,8 +1179,17 @@
         document.getElementById('success-message-display').textContent = window.terminalConfig.successMessage || "Obrigado pela preferência!";
         document.getElementById('view-success').classList.add('active'); lucide.createIcons(); confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#017851', '#ffffff'] });
         document.getElementById('btn-show-receipt').onclick = () => window.showThermalReceipt(updateObj);
+       
+        // FECHAR A TELA DE SUCESSO AUTOMATICAMENTE APÓS 8 SEGUNDOS
+        if (window.successTimeout) clearTimeout(window.successTimeout);
+        window.successTimeout = setTimeout(() => {
+            // Verifica se a tela ainda está aberta antes de fechar (caso o usuário já tenha fechado)
+            if (document.getElementById('view-success').classList.contains('active')) {
+                window.resetTerminal();
+            }
+        }, 8000); // <-- PODE MUDAR OS SEGUNDOS AQUI (8000 = 8 segundos, 5000 = 5 segundos)
     };
-
+    
     window.showThermalReceipt = (sale) => {
         document.getElementById('view-success').classList.remove('active'); document.getElementById('view-receipt').classList.add('active');
         document.getElementById('receipt-store-name').textContent = window.terminalConfig.terminalName || "TERMINAL PDV";
