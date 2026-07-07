@@ -62,23 +62,23 @@
         }
 
                   /* 1. Tamanho padrão (aplicado no Celular) */
-        .main-digit { 
-              font-size: 18rem; /* <-- ALTERE AQUI O TAMANHO DO CELULAR */
-              font-weight: 700; 
-              line-height: 1; 
-              letter-spacing: -0.03em; 
-              text-align: center; 
-              max-width: 90vw; 
-              color: var(--text-color, #ffffff) !important; 
-              will-change: opacity, transform; 
-          }
-
-          /* 2. Tamanho apenas para Telas Grandes (PC/Tablet) */
-        @media (min-width: 768px) {
-              .main-digit { 
-                  font-size: 9rem; /* <-- ALTERE AQUI O TAMANHO DO PC */
-              }
-          }
+            .main-digit { 
+                font-size: 25vw; /* <-- 25vw é excelente. Se quiser maior, tente 30vw. Menor, tente 20vw. */
+                font-weight: 700; 
+                line-height: 1; 
+                letter-spacing: -0.03em; 
+                text-align: center; 
+                max-width: 90vw; 
+                color: var(--text-color, #ffffff) !important; 
+                will-change: opacity, transform; 
+            }
+            
+            /* 2. Tamanho apenas para Telas Grandes (PC/Tablet) */
+            @media (min-width: 768px) {
+                .main-digit { 
+                    font-size: 9rem; /* <-- 9rem no PC fica ótimo! */
+                }
+            }
         @keyframes soft-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .waiting-pulse { animation: soft-pulse 2s infinite ease-in-out; opacity: 0.4; }
 
